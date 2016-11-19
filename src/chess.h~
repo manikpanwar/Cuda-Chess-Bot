@@ -41,7 +41,6 @@ struct board {
 };
 
 struct pos {
-  int type;
   int x;
   int y;
   bool active;
