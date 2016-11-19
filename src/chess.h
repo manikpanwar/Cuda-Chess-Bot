@@ -17,6 +17,7 @@ typedef struct player* player_t;
 typedef struct board* board_t;
 typedef struct pos* pos_t;
 typedef struct board_piece* board_piece_t;
+typedef struct move* move_t;
 
 struct player {
   pos_t king;   // king
@@ -45,5 +46,10 @@ struct pos {
   bool active;
 };
 
+struct move {
+  // x cols, y rows
+  int x1, y1;
+  int x2, y2;
+};
 
 #endif
