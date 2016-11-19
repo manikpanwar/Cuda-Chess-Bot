@@ -17,6 +17,7 @@ typedef struct player* player_t;
 typedef struct board* board_t;
 typedef struct pos* pos_t;
 typedef struct board_piece* board_piece_t;
+typedef struct move* move_t;
 
 struct player {
   pos_t king;   // king
@@ -34,17 +35,33 @@ struct board_piece {
 
 struct board {
   board_piece_t gameBoard;
+<<<<<<< HEAD
   int curPlayer;
+=======
+  int curplayer;
+>>>>>>> f13bf6ca78dfd1dff521f1bef61dfebc11c5e6ef
   player_t black;
   player_t white;
   bool gameOver;
 };
 
 struct pos {
+  int type;
   int x;
   int y;
   bool active;
 };
 
+struct move {
+  // x cols, y rows
+  int x1, y1;
+  int x2, y2;
+};
+
+
+/* ai needs in interface
+ * getIndex
+ *
+ */
 
 #endif
