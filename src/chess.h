@@ -34,13 +34,14 @@ struct board_piece {
 }
 
 struct board {
-  board_piece_t game_board;
+  board_piece_t gameBoard;
   int curplayer;
   player_t black;
   player_t white;
 };
 
 struct pos {
+  int type;
   int x;
   int y;
   bool active;
@@ -51,5 +52,11 @@ struct move {
   int x1, y1;
   int x2, y2;
 };
+
+
+/* ai needs in interface
+ * getIndex
+ *
+ */
 
 #endif
