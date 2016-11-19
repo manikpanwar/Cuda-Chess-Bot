@@ -16,7 +16,7 @@
 typedef struct player* player_t;
 typedef struct board* board_t;
 typedef struct pos* pos_t;
-
+typedef struct board_piece* board_piece_t;
 
 struct player {
   pos_t king;   // king
@@ -24,10 +24,16 @@ struct player {
   pos_t lbishop, rbishop; // bishop
   pos_t lknight, rknight; // knight
   pos_t lrook, rrook; // rook
-  pos_t* pawns;  // 8 element array
+  pos_t pawns;  // 8 element array
 };
 
+struct board_piece {
+  pos_t piece;
+  int player;
+}
+
 struct board {
+  board_piece_t game_board;
   int curplayer;
   player_t black;
   player_t white;
