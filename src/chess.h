@@ -22,8 +22,8 @@ struct player {
   pos_t king;   // king
   pos_t queen;   // queen
   pos_t lbishop, rbishop; // bishop
-  pos_t lknight, rknight;
-  pos_t lrook, rrook;
+  pos_t lknight, rknight; // knight
+  pos_t lrook, rrook; // rook
   pos_t* pawns;  // 8 element array
 };
 
