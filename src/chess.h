@@ -57,7 +57,7 @@ struct move {
 
 /* ai needs in interface
  * getIndex
- *
+ * isLegalMove
  */
 
 #endif
