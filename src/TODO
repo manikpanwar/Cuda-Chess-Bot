@@ -8,4 +8,9 @@
 6. Implement sequentially (cpu) or in kernels first? Is the speedup measured comparing sequential on cpu vs parallel on gpu or gpu 1 thread vs gpu multiple threads?
 
 
+CHESS FEATURES:
+
+1. Castling (add in generatePossibleMoves)
+2. Reviving (add in generatePossibleMoves)
+
 
