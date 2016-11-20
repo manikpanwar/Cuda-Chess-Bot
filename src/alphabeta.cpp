@@ -415,5 +415,39 @@ int score(board_t board) {
 
   // TODO: add mobility scoring to the result
   return result;
+}
+
+
+minimaxResult_t maxi(int curDepth, int maxDepth, int alpha, int beta, board_t board) {
+  // ENSURES: board struct remains the same as it was passed in when the function completes
+  int curScore = score(board);
+
+  if (maxDepth == curDepth) {
+    return curScore;
+  }
+
+  std::vector<move_t> possibleMoves = generatePossibleMoves(board);
+
+  move_t bestMove = NULL;
+
+  for (std::vector<move_t>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); it++) {
+    move_t curMove = *it;
+    int x1 = curMove->x1;
+    int y1 = curMove->y1;
+    board_piece_t startPiece = board->gameBoard[getIndex(x1, y1)];
+    int x2 = curMove->x2;
+    int y2 = curMove->y2;
+    board_piece_t endPiece = board->gameBoard[getIndex(x2, y2)];
+
+    // we know curMove is valid
+    applyMove(curMove, board);
+
+
+
+    // now undo this move
+    undoMove(x1, y1, startPiece, x2, y2, endPiece);
+
+
+  }
 
 }

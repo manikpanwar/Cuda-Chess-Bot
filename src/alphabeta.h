@@ -4,12 +4,12 @@
 #define POSINF INT_MAX     // may need to include <limits.h>
 #define NEGINF INT_MIN
 
-typedef struct abParams* abParams_t;
+typedef struct minimaxResult* minimaxResult_t;
 
-struct abParams {
-  int maxDepth;
+struct minimaxResult {
   int alpha;
   int beta;
-};
+  move_t move;
+}
 
 #endif
