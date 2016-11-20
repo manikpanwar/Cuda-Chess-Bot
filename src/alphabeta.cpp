@@ -371,3 +371,49 @@ std::vector<move_t> generatePossibleMoves(board_t board) {
 
 }
 
+
+// heuristic taken from https://chessprogramming.wikispaces.com/Evaluation
+int score(board_t board) {
+  // Minimax usually associates the white side with the max-player and black
+  // with the min-player and always evaluates from the white point of view
+
+  player_t white = board->white;
+  player_t black = board->black;
+
+  // king
+  int wka = white->king->active;
+  int bka = black->king->active;
+  int result = 200 * (wka - bka);
+
+  // queen
+  int wqa = white->queen->active;
+  int bqa = black->queen->active;
+  result += 9 * (wqa - bqa);
+
+  // rooks
+  int wra = (int)white->lrook->active + (int)white->rrook->active;
+  int bra = (int)black->lrook->active + (int)black->rrook->active;
+  result += 5 * (wra - bra);
+
+
+  // bishops an knights
+  int wbka = (int)white->lbishop->active + (int)white->rbishop->active;
+  wbka = (int)white->lknight->active + (int)white->rknight->active;
+
+  int bbka = (int)black->lbishop->active + (int)black->rbishop->active;
+  bbka = (int)black->lknight->active + (int)black->rknight->active;
+  result += 3 * (wbka - bbka);
+
+  // pawns
+  int wpawns = 0;
+  int bpawns = 0;
+  for (int i = 0; i < BOARD_WIDTH; i++) {
+    if (white->pawns[i]->active) wpawns += 1;
+    if (black->pawns[i]->active) bpawns += 1;
+  }
+  result += 1 * (wpawns - bpawns);
+
+  // TODO: add mobility scoring to the result
+  return result;
+
+}
