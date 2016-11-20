@@ -1,4 +1,8 @@
-1. isValidMove
+abstract out applyMove from isLegalMove
+once that is extracted make applyMove return info on piece taken
+undoMove
+
+1. isLegalMove
 2. applyMove
 3. checkGameOver
 4. parseCommandLine to get move
