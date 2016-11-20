@@ -251,11 +251,16 @@ void removeTakenPiece(player_t p, int startIndex, int endIndex, board_piece_t ga
   gameBoard[endIndex]->piece->type = gameBoard[startIndex]->piece->type;
   gameBoard[endIndex]->player = curPlayer;
   gameBoard[startIndex] = NULL;
+}
 
+void movePiece(board_piece_t gameBoard, int startIndex, int endIndex, int curPlayer) {
+  gameBoard[endIndex]->piece->type = gameBoard[startIndex]->piece->type;
+  gameBoard[endIndex]->player = curPlayer;
+  gameBoard[startIndex] = NULL;
 }
 
 // check if the move is legal, if it is then complete the move
-bool isValidMove(move_t move, board_t B) {
+bool isLegalMove(move_t move, board_t B) {
   
   int x1 = move->x1;
   int x2 = move->x2;
@@ -288,7 +293,7 @@ bool isValidMove(move_t move, board_t B) {
   int rowDiff = y1 - y2;
   int colDiff = x1 - x2;
 
-  // check valid moves for WHITE since it will differ depending on player
+  // check valid moves for WHITE pawns since it will differ depending on player
   if (gameBoard[startIndex]->piece->type == PAWN && curPlayer == WHITE) {
 
     // if pawn is not in starting position, it can only move one space
@@ -330,13 +335,188 @@ bool isValidMove(move_t move, board_t B) {
     // if you move the pawn diagonally and there is an enemy piece there
     else if (rowDiff == -1 && abs(colDiff) == 1) {
       removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
+      return true;
     }
 
     // if you move the pawn into an open space 
     else {
-      gameBoard[endIndex]->piece->type = gameBoard[startIndex]->piece->type;
-      gameBoard[endIndex]->player = curPlayer;
-      gameBoard[startIndex] = NULL;
+      movePiece(gameBoard, startIndex, endIndex, curPlayer);
+      return true;
+    }
+  }
+  // check valid move for BLACK pawns
+  else if (gameBoard[startIndex]->piece->type == PAWN && curPlayer == BLACK) {
+
+    // if pawn is not in starting position, it can only move one space
+    if (y1 != 6 && rowDiff >= 2) {
+      printf("Pawns can only move 1 space after their first move.\n");
+      return false;
+    }
+
+    // if pawn is in starting position, it can move up to 2 moves
+    else if (y1 == 6 && rowDiff > 2) {
+      printf("Pawns can only move 2 spaces on first move.\n");
+      return false;
+    }
+
+    // pawns can only move forward, not sideways or backward
+    else if (rowDiff <= 0) {
+      printf("Pawns can only move forward.\n");
+      return false;
+    }
+
+    // at max pawns can move one column over at a time
+    else if (abs(colDiff) > 1) {
+      printf("Pawns can't move that much horizontally.\n");
+      return false;
+    }
+
+    // pawns can only move diagonally if there is an enemy piece there
+    else if (abs(colDiff) == 1 and rowDiff == 1 && gameBoard[endIndex] == NULL) {
+      printf("Pawns can only move diagonally if there is an enemy piece there.\n");
+      return false;
+    }
+
+    // pawns can't move directly forward into an enemy piece
+    else if (rowDiff == 1 && colDiff == 0 && gameBoard[endIndex] != NULL) {
+      printf("Pawns can't move directly forward into an enemy piece.\n");
+      return false;
+    }
+
+    // if you move the pawn diagonally and there is an enemy piece there
+    else if (rowDiff == 1 && abs(colDiff) == 1) {
+      removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
+      return true;
+    }
+
+    // if you move the pawn into an open space 
+    else {
+      movePiece(gameBoard, startIndex, endIndex, curPlayer);
+      return true;
+    }
+  }
+
+  else if (gameBoard[startIndex]->piece->type == KING) {
+    // kings can only move one space
+    if (abs(rowDiff) > 1 || abs(colDiff) > 1) {
+      printf("Kings an only move one space in any direction.\n");
+      return false;
+    }
+    else if (gameBoard[endIndex] != NULL && gameBoard[endIndex]->player != curPlayer) {
+      if (curPlayer == WHITE) {
+        removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
+        return true;
+      }
+      else {
+        removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
+        return true;
+      }
+    }
+    else {
+      movePiece(gameBoard, startIndex, endIndex, curPlayer);
+      return true;
+    }
+  }
+
+  else if (gameBoard[startIndex]->piece->type == QUEEN) {
+    if (abs(rowDiff) != abs(colDiff) && rowDiff != 0 && colDiff != 0) {
+      printf("Queens can only move diagonally or straight.\n");
+      return false;
+    }
+    // TIME TO CHECK ALL DA POSSIBLE BLOCKING PIECES
+    if (rowDiff > 0 && colDiff > 0) {
+      for (int i = y1-1; i > y2; i--) {
+        for (int j = x1-1; j > x2; j--) {
+          int tempIndex = getIndex(j, i);
+          if (gameBoard[tempIndex] != NULL) {
+            printf("There is a piece blocking your move.\n");
+            return false
+          }
+        }
+      }
+    }
+    else if (rowDiff < 0 && colDiff < 0) {
+      for (int i = y1+1; i < y2; i++) {
+        for (int j = x1+1; j < x2; j++) {
+          int tempIndex = getIndex(j, i);
+          if (gameBoard[tempIndex] != NULL) {
+            printf("There is a piece blocking your move.\n");
+            return false
+          }
+        }
+      }
+    }
+    else if (rowDiff > 0 && colDiff < 0) {
+      for (int i = y1-1; i > y2; i--) {
+        for (int j = x1+1; j < x2; j++) {
+          int tempIndex = getIndex(j, i);
+          if (gameBoard[tempIndex] != NULL) {
+            printf("There is a piece blocking your move.\n");
+            return false
+          }
+        }
+      }
+    }
+    else if (rowDiff < 0 && colDiff > 0) {
+      for (int i = y1+1; i < y2; i++) {
+        for (int j = x1-1; j > x2; j--) {
+          int tempIndex = getIndex(j, i);
+          if (gameBoard[tempIndex] != NULL) {
+            printf("There is a piece blocking your move.\n");
+            return false
+          }
+        }
+      }
+    }
+    else if (rowDiff == 0 && colDiff > 0) {
+      for (int i = x1-1; i > x2; i--) {
+        int tempIndex = getIndex(i, y1);
+        if (gameBoard[tempIndex] != NULL) {
+          printf("There is a piece blocking your move.\n");
+          return false
+        }
+      }
+    }
+    else if (rowDiff == 0 && colDiff < 0) {
+      for (int i = x1+1; i < x2; i++) {
+        int tempIndex = getIndex(i, y1);
+        if (gameBoard[tempIndex] != NULL) {
+          printf("There is a piece blocking your move.\n");
+          return false
+        }
+      }
+    }
+    else if (rowDiff > 0 && colDiff == 0) {
+      for (int i = y1-1; i > y2; i--) {
+        int tempIndex = getIndex(x1, i);
+        if (gameBoard[tempIndex] != NULL) {
+          printf("There is a piece blocking your move.\n");
+          return false
+        }
+      }
+    }
+    else if (rowDiff < 0 && colDiff == 0) {
+      for (int i = y1+1; i < y2; i++) {
+        int tempIndex = getIndex(x1, i);
+        if (gameBoard[tempIndex] != NULL) {
+          printf("There is a piece blocking your move.\n");
+          return false
+        }
+      }
+    }
+    else if (gameBoard[endIndex] != NULL && gameBoard[endIndex]->player != curPlayer) {
+      if (curPlayer == WHITE) {
+        removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
+        return true;
+      }
+      else {
+        removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
+        return true;
+      }
+    }
+    else {
+      movePiece(gameBoard, startIndex, endIndex, curPlayer);
+      return true;
     }
   }
 }
