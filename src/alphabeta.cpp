@@ -423,7 +423,10 @@ minimaxResult_t maxi(int curDepth, int maxDepth, int alpha, int beta, board_t bo
   int curScore = score(board);
 
   if (maxDepth == curDepth) {
-    return curScore;
+    minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
+    res->bestRes = curScore;
+    res->move = NULL;
+    return res;
   }
 
   std::vector<move_t> possibleMoves = generatePossibleMoves(board);
@@ -441,13 +444,110 @@ minimaxResult_t maxi(int curDepth, int maxDepth, int alpha, int beta, board_t bo
 
     // we know curMove is valid
     applyMove(curMove, board);
+    // applying move modifies the board
 
-
+    minimaxResult_t curRes = mini(curDepth + 1, maxDepth, alpha, beta, board);
+    int newBeta = curRes->bestRes;
 
     // now undo this move
     undoMove(x1, y1, startPiece, x2, y2, endPiece);
 
+    // calculate new intervals | prune if applicable
+    if (alpha < newBeta && newBeta < beta) {
+      // INTERIOR
+      alpha = newBeta;
+      bestMove = curMove;
+    } else if (alpha < newBeta) {
+      // ABOVE
+      // assert (newBeta >= beta)
+      // mini can already get beta so would never move us into this state
+      // where we can get higher than beta so prune
 
+      free(curRes);
+      minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
+      res->bestRes = newBeta;  // TODO: Check value returned here
+      res->move = NULL;
+      return res;
+    }
+    // last case is BELOW so keep alpha as is
+    free(curRes);
+  }
+  minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
+  res->bestRes = alpha;
+  res->move = bestMove;
+  return res;
+}
+
+
+minimaxResult_t mini(int curDepth, int maxDepth, int alpha, int beta, board_t board) {
+  // ENSURES: board struct remains the same as it was passed in when the function completes
+  int curScore = score(board);
+
+  if (maxDepth == curDepth) {
+    minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
+    res->bestRes = curScore;
+    res->move = NULL;
+    return res;
   }
 
+  std::vector<move_t> possibleMoves = generatePossibleMoves(board);
+
+  move_t bestMove = NULL;
+
+  for (std::vector<move_t>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); it++) {
+    move_t curMove = *it;
+    int x1 = curMove->x1;
+    int y1 = curMove->y1;
+    board_piece_t startPiece = board->gameBoard[getIndex(x1, y1)];
+    int x2 = curMove->x2;
+    int y2 = curMove->y2;
+    board_piece_t endPiece = board->gameBoard[getIndex(x2, y2)];
+
+    // we know curMove is valid
+    applyMove(curMove, board);
+    // applying move modifies the board
+
+    minimaxResult_t curRes = maxi(curDepth + 1, maxDepth, alpha, beta, board);
+    int newAlpha = curRes->bestRes;
+
+    // now undo this move
+    undoMove(x1, y1, startPiece, x2, y2, endPiece);
+
+    // calculate new intervals | prune if applicable
+    if (alpha < newAlpha && newAlpha < beta) {
+      // INTERIOR
+      beta = newAlpha;
+      bestMove = curMove;
+    } else if (alpha < newAlpha) {
+      // ABOVE so do nothing and keep iterating
+    } else {
+      // BELOW
+      // maxi can already get alpha so no way it would get mini in a position to get a newAlpha
+      // less than current alpha so prune
+
+      free(curRes);
+      minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
+      res->bestRes = newAlpha;  // TODO: Check value returned here
+      res->move = NULL;
+      return res;
+    }
+    free(curRes);
+  }
+  minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
+  res->bestRes = beta;
+  res->move = bestMove;
+  return res;
+}
+
+move_t nextMove(board_t board, int curPlayer) {
+  // AI is called to help les goooooo!!!
+  minimaxResult_t res;
+  if (curPlayer == MAXI) {
+    res = maxi(0, MAXDEPTH, NEGINF, POSINF, board);
+  } else {
+    res = mini(0, MAXDEPTH, NEGINF, POSINF, board);
+  }
+  move_t move = res->move;
+  free(res);
+  return move;
 }
