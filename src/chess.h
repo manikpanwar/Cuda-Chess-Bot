@@ -31,11 +31,11 @@ struct player {
 struct board_piece {
   pos_t piece;
   int player;
-}
+};
 
 struct board {
   board_piece_t gameBoard;
-  int curplayer;
+  int curPlayer;
   player_t black;
   player_t white;
   bool gameOver;

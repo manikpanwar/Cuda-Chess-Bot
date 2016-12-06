@@ -1,7 +1,7 @@
-#include "chess.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include "chess.h"
 
 void generatePossibleMovesKing(board_t board, int x, int y,
     std::vector<move_t> possibleMoves) {
