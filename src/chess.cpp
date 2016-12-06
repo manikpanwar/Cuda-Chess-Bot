@@ -519,6 +519,153 @@ bool isLegalMove(move_t move, board_t B) {
       return true;
     }
   }
+
+  else if (gameBoard[startIndex]->piece->type == KNIGHT) {
+    if (abs(rowDiff) * abs(colDiff) != 2) {
+      printf("Illegal move for a knight.\n");
+      return false;
+    }
+    else if (gameBoard[endIndex] != NULL && gameBoard[endIndex]->player != curPlayer) {
+      if (curPlayer == WHITE) {
+        removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
+        return true;
+      }
+      else {
+        removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
+        return true;
+      }
+    }
+    else {
+      movePiece(gameBoard, startIndex, endIndex, curPlayer);
+      return true;
+    }
+  }
+
+  else if (gameBoard[startIndex]->piece->type == BISHOP) {
+    if (abs(rowDiff) != abs(colDiff)) {
+      printf("Bishops can only move diagonally.\n");
+      return false;
+    }
+    // check all the blocking pieces
+    else if (rowDiff > 0 && colDiff > 0) {
+      for (int i = y1-1; i > y2; i--) {
+        for (int j = x1-1; j > x2; j--) {
+          int tempIndex = getIndex(j, i);
+          if (gameBoard[tempIndex] != NULL) {
+            printf("There is a piece blocking your move.\n");
+            return false
+          }
+        }
+      }
+    }
+    else if (rowDiff < 0 && colDiff < 0) {
+      for (int i = y1+1; i < y2; i++) {
+        for (int j = x1+1; j < x2; j++) {
+          int tempIndex = getIndex(j, i);
+          if (gameBoard[tempIndex] != NULL) {
+            printf("There is a piece blocking your move.\n");
+            return false
+          }
+        }
+      }
+    }
+    else if (rowDiff > 0 && colDiff < 0) {
+      for (int i = y1-1; i > y2; i--) {
+        for (int j = x1+1; j < x2; j++) {
+          int tempIndex = getIndex(j, i);
+          if (gameBoard[tempIndex] != NULL) {
+            printf("There is a piece blocking your move.\n");
+            return false
+          }
+        }
+      }
+    }
+    else if (rowDiff < 0 && colDiff > 0) {
+      for (int i = y1+1; i < y2; i++) {
+        for (int j = x1-1; j > x2; j--) {
+          int tempIndex = getIndex(j, i);
+          if (gameBoard[tempIndex] != NULL) {
+            printf("There is a piece blocking your move.\n");
+            return false
+          }
+        }
+      }
+    }
+    else if (gameBoard[endIndex] != NULL && gameBoard[endIndex]->player != curPlayer) {
+      if (curPlayer == WHITE) {
+        removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
+        return true;
+      }
+      else {
+        removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
+        return true;
+      }
+    }
+    else {
+      movePiece(gameBoard, startIndex, endIndex, curPlayer);
+      return true;
+    }
+  }
+
+  else if (gameBoard[startIndex]->piece->type == ROOK) {
+    if (rowDiff != 0 && colDiff != 0) {
+      printf("Rooks can only move directly forward or sideways.\n");
+      return false;
+    }
+    // check for blocking pieces
+    else if (rowDiff == 0 && colDiff > 0) {
+      for (int i = x1-1; i > x2; i--) {
+        int tempIndex = getIndex(i, y1);
+        if (gameBoard[tempIndex] != NULL) {
+          printf("There is a piece blocking your move.\n");
+          return false
+        }
+      }
+    }
+    else if (rowDiff == 0 && colDiff < 0) {
+      for (int i = x1+1; i < x2; i++) {
+        int tempIndex = getIndex(i, y1);
+        if (gameBoard[tempIndex] != NULL) {
+          printf("There is a piece blocking your move.\n");
+          return false
+        }
+      }
+    }
+    else if (rowDiff > 0 && colDiff == 0) {
+      for (int i = y1-1; i > y2; i--) {
+        int tempIndex = getIndex(x1, i);
+        if (gameBoard[tempIndex] != NULL) {
+          printf("There is a piece blocking your move.\n");
+          return false
+        }
+      }
+    }
+    else if (rowDiff < 0 && colDiff == 0) {
+      for (int i = y1+1; i < y2; i++) {
+        int tempIndex = getIndex(x1, i);
+        if (gameBoard[tempIndex] != NULL) {
+          printf("There is a piece blocking your move.\n");
+          return false
+        }
+      }
+    }
+    else if (gameBoard[endIndex] != NULL && gameBoard[endIndex]->player != curPlayer) {
+      if (curPlayer == WHITE) {
+        removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
+        return true;
+      }
+      else {
+        removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
+        return true;
+      }
+    }
+    else {
+      movePiece(gameBoard, startIndex, endIndex, curPlayer);
+      return true;
+    }
+  }
+
+  else return false;
 }
 
 move_t parseMove (string move) {
@@ -574,19 +721,61 @@ move_t parseMove (string move) {
   return m;
 }
 
+int gameOver(board_t B) {
+  if (!B->white->king->active) {
+    return BLACK:
+  }
+  else if (!B->black->king->active) {
+    return WHITE;
+  }
+  else {
+    return -1;
+  }
+}
+
 int main() {
   board_t B = malloc(sizeof(struct board));
   B->gameBoard = calloc(BOARD_WIDTH * BOARD_HEIGHT, sizeof(struct board_piece_t));
   initGame(B);
+  char* move;
   while(1) {
+    cout << "Please enter a move: ";
+    cin >> move;
     // read input from cmdline (e.g. LK e 5, LB a 6, P1 b 3, etc...)
     
     while(!isValidMoveFormat(move)) {
-      printf("Invalid move format!");
+      printf("Invalid move format!\n");
       // get move
+      cout << "Please enter a move: ";
+      cin >> move;
     }
     
     move_t m = parseMove(move);
+
+    while (!isLegalMove(m, B)) {
+      printf("Please enter a legal move.\n");
+      cout << "Please enter a move: ";
+      cin >> move;
+      while(!isValidMoveFormat(move)) {
+        printf("Invalid move format!\n");
+        // get move
+        cout << "Please enter a move: ";
+        cin >> move;
+      }
+    
+      m = parseMove(move);
+    }
+
+    // check game over
+    if (gameOver(B) == WHITE) {
+      printf("White wins!\n");
+      break;
+    }
+
+    else if (gameOver(B) == BLACK) {
+      printf("Black wins!\n");
+      break;
+    }
 
     B->curPlayer = (B->curPlayer == WHITE) ? BLACK : WHITE;
   }
