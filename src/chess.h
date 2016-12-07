@@ -55,7 +55,7 @@ struct move {
 };
 
 
-void undoMove(int x1, int y1, board_piece_t startPiece, int x2, int y2, board_piece_t endPiece);
+void undoMove(int x1, int y1, board_piece startPiece, int x2, int y2, board_piece endPiece);
 
 void applyMove(move_t move, board_t board);
 

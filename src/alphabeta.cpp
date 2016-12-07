@@ -1,21 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include <limits.h>
 #include "chess.h"
+#include "alphabeta.h"
+
+
+minimaxResult_t mini(int curDepth, int maxDepth,
+                    int alpha, int beta, board_t board);
+
+minimaxResult_t maxi(int curDepth, int maxDepth,
+                    int alpha, int beta, board_t board);
+
 
 void generatePossibleMovesKing(board_t board, int x, int y,
     std::vector<move_t> possibleMoves) {
   // king can move in any direction
   // x == x1, y == y1
   move_t m1, m2, m3, m4, m5, m6, m7, m8;
-  m1 = malloc(sizeof(struct move));
-  m2 = malloc(sizeof(struct move));
-  m3 = malloc(sizeof(struct move));
-  m4 = malloc(sizeof(struct move));
-  m5 = malloc(sizeof(struct move));
-  m6 = malloc(sizeof(struct move));
-  m7 = malloc(sizeof(struct move));
-  m8 = malloc(sizeof(struct move));
+  m1 = (move_t)malloc(sizeof(struct move));
+  m2 = (move_t)malloc(sizeof(struct move));
+  m3 = (move_t)malloc(sizeof(struct move));
+  m4 = (move_t)malloc(sizeof(struct move));
+  m5 = (move_t)malloc(sizeof(struct move));
+  m6 = (move_t)malloc(sizeof(struct move));
+  m7 = (move_t)malloc(sizeof(struct move));
+  m8 = (move_t)malloc(sizeof(struct move));
   m1->x1 = x;
   m1->y1 = y;
   m2->x1 = x;
@@ -105,7 +115,7 @@ void generatePossibleMovesQueen(board_t board, int x, int y,
 
   for (int row = 0; row < BOARD_HEIGHT; row++) {
     for (int col = 0; col < BOARD_WIDTH; col++) {
-      move_t curMove = malloc(sizeof(struct move));
+      move_t curMove = (move_t)malloc(sizeof(struct move));
       curMove->x1 = x;
       curMove->y1 = y;
       curMove->x2 = col;
@@ -126,7 +136,7 @@ void generatePossibleMovesBishop(board_t board, int x, int y,
   for (int row = 0; row < BOARD_HEIGHT; row++) {
     for (int col = 0; col < BOARD_WIDTH; col++) {
       if (row - col == y - x || (row + col) == x + y) {
-        move_t curMove = malloc(sizeof(struct move));
+        move_t curMove = (move_t)malloc(sizeof(struct move));
         curMove->x1 = x;
         curMove->y1 = y;
         curMove->x2 = col;
@@ -146,14 +156,14 @@ void generatePossibleMovesKnight(board_t board, int x, int y,
     std::vector<move_t> possibleMoves) {
   // x == x1, y == y1
   move_t m1, m2, m3, m4, m5, m6, m7, m8;
-  m1 = malloc(sizeof(struct move));
-  m2 = malloc(sizeof(struct move));
-  m3 = malloc(sizeof(struct move));
-  m4 = malloc(sizeof(struct move));
-  m5 = malloc(sizeof(struct move));
-  m6 = malloc(sizeof(struct move));
-  m7 = malloc(sizeof(struct move));
-  m8 = malloc(sizeof(struct move));
+  m1 = (move_t)malloc(sizeof(struct move));
+  m2 = (move_t)malloc(sizeof(struct move));
+  m3 = (move_t)malloc(sizeof(struct move));
+  m4 = (move_t)malloc(sizeof(struct move));
+  m5 = (move_t)malloc(sizeof(struct move));
+  m6 = (move_t)malloc(sizeof(struct move));
+  m7 = (move_t)malloc(sizeof(struct move));
+  m8 = (move_t)malloc(sizeof(struct move));
   m1->x1 = x;
   m1->y1 = y;
   m2->x1 = x;
@@ -242,8 +252,8 @@ void generatePossibleMovesRook(board_t board, int x, int y,
     std::vector<move_t> possibleMoves) {
 
   for (int row = 0; row < BOARD_HEIGHT; row++) {
-    int col = col;  // col stays the same
-    move_t curMove = malloc(sizeof(struct move));
+    int col = x;  // col stays the same TODO: confirm
+    move_t curMove = (move_t)malloc(sizeof(struct move));
     curMove->x1 = x;
     curMove->y1 = y;
     curMove->x2 = col;
@@ -254,9 +264,9 @@ void generatePossibleMovesRook(board_t board, int x, int y,
       free(curMove);
     }
   }
-  for (int col = 0; row < BOARD_WIDTH; col++) {
-    int row = row;  // row stays the same
-    move_t curMove = malloc(sizeof(struct move));
+  for (int col = 0; col < BOARD_WIDTH; col++) {
+    int row = y;  // row stays the same TODO: confirm
+    move_t curMove = (move_t)malloc(sizeof(struct move));
     curMove->x1 = x;
     curMove->y1 = y;
     curMove->x2 = col;
@@ -273,10 +283,10 @@ void generatePossibleMovesPawn(board_t board, int x, int y,
     std::vector<move_t> possibleMoves, int curPlayer) {
   int mf = (curPlayer == WHITE) ? 1 : -1;  // multFactor
   move_t m1, m2, m3, m4;
-  m1 = malloc(sizeof(struct move));
-  m2 = malloc(sizeof(struct move));
-  m3 = malloc(sizeof(struct move));
-  m4 = malloc(sizeof(struct move));
+  m1 = (move_t)malloc(sizeof(struct move));
+  m2 = (move_t)malloc(sizeof(struct move));
+  m3 = (move_t)malloc(sizeof(struct move));
+  m4 = (move_t)malloc(sizeof(struct move));
 
   m1->x1 = x;
   m1->y1 = y;
@@ -331,14 +341,19 @@ std::vector<move_t> generatePossibleMoves(board_t board) {
 
   for (int row = 0; row < BOARD_HEIGHT; row++) {
     for (int col = 0; col < BOARD_WIDTH; col++) {
-      pos_t piece = board->gameBoard[getIndex(col, row)];
-      if (piece == NULL) {
+      pos_t piece = (board->gameBoard[getIndex(col, row)]).piece;
+      int playerForPiece = (board->gameBoard[getIndex(col, row)]).player;
+
+      int curPlayer = board->curPlayer;
+      if (piece == NULL || (playerForPiece != curPlayer)) {
         // nothing at this position on the board
+        // or current position is for a player who doesn't have a turn right now
         continue;
       }
-      int x1 = piece->x;
-      int y1 = piece->y;
-      int curPlayer = board->curPlayer;
+
+      int x = piece->x;
+      int y = piece->y;
+
       switch (piece->type) {
         case KING: {
                      generatePossibleMovesKing(board, x, y, possibleMoves);
@@ -363,7 +378,7 @@ std::vector<move_t> generatePossibleMoves(board_t board) {
         case PAWN: {
                      generatePossibleMovesPawn(board, x, y,
                          possibleMoves, curPlayer);
-                     break
+                     break;
                    }
       }
     }
@@ -408,8 +423,8 @@ int score(board_t board) {
   int wpawns = 0;
   int bpawns = 0;
   for (int i = 0; i < BOARD_WIDTH; i++) {
-    if (white->pawns[i]->active) wpawns += 1;
-    if (black->pawns[i]->active) bpawns += 1;
+    if ((white->pawns[i]).active) wpawns += 1;
+    if ((black->pawns[i]).active) bpawns += 1;
   }
   result += 1 * (wpawns - bpawns);
 
@@ -437,10 +452,10 @@ minimaxResult_t maxi(int curDepth, int maxDepth, int alpha, int beta, board_t bo
     move_t curMove = *it;
     int x1 = curMove->x1;
     int y1 = curMove->y1;
-    board_piece_t startPiece = board->gameBoard[getIndex(x1, y1)];
+    board_piece startPiece = board->gameBoard[getIndex(x1, y1)];
     int x2 = curMove->x2;
     int y2 = curMove->y2;
-    board_piece_t endPiece = board->gameBoard[getIndex(x2, y2)];
+    board_piece endPiece = board->gameBoard[getIndex(x2, y2)];
 
     // we know curMove is valid
     applyMove(curMove, board);
@@ -498,10 +513,10 @@ minimaxResult_t mini(int curDepth, int maxDepth, int alpha, int beta, board_t bo
     move_t curMove = *it;
     int x1 = curMove->x1;
     int y1 = curMove->y1;
-    board_piece_t startPiece = board->gameBoard[getIndex(x1, y1)];
+    board_piece startPiece = board->gameBoard[getIndex(x1, y1)];
     int x2 = curMove->x2;
     int y2 = curMove->y2;
-    board_piece_t endPiece = board->gameBoard[getIndex(x2, y2)];
+    board_piece endPiece = board->gameBoard[getIndex(x2, y2)];
 
     // we know curMove is valid
     applyMove(curMove, board);

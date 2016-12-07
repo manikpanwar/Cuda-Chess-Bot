@@ -14,6 +14,6 @@ typedef struct minimaxResult* minimaxResult_t;
 struct minimaxResult {
   int bestRes;
   move_t move;
-}
+};
 
 #endif
