@@ -259,6 +259,87 @@ void movePiece(board_piece_t gameBoard, int startIndex, int endIndex, int curPla
   gameBoard[startIndex].piece = NULL;
 }
 
+void undoMove(int x1, int y1, board_piece startPiece, int x2, int y2, board_piece endPiece, board_t B) {
+  int startIndex = getIndex(x1, y1);
+  int endIndex = getIndex(x2, y2);
+
+  board_piece_t gameBoard = B->gameBoard;
+
+  gameBoard[startIndex] = startPiece;
+  gameBoard[endIndex] = endPiece;
+
+  int curPlayer = B->curPlayer;
+  player_t p;
+  if (curPlayer == WHITE) {
+    p = B->black;
+  }
+  else if (curPlayer == BLACK) {
+    p = B->white;
+  }
+
+  // logic for bringing a piece back from the dead if it was taken
+  if (gameBoard[endIndex].piece != NULL) {
+    switch (gameBoard[endIndex].piece->type) {
+      case PAWN: for (int i = 0; i < 8; i++) {
+                   if (!p->pawns[i].active) {
+                     p->pawns[i].active = true;
+                     break;
+                   }
+                 }
+                 break;
+      case BISHOP: if (!p->lbishop->active) {
+                     p->lbishop->active = true;
+                   }
+                   else {
+                     p->rbishop->active = true;
+                   }
+                   break;
+      case KNIGHT: if (!p->lknight->active) {
+                     p->lknight->active = true;
+                   }
+                   else {
+                     p->rknight->active = true;
+                   }
+                   break;
+      case ROOK: if (!p->lrook->active) {
+                   p->lrook->active = true;
+                 }
+                 else {
+                   p->rrook->active = true;
+                 }
+                 break;
+      case QUEEN: p->queen->active = true;
+                  break;
+      case KING: p->king->active = true;
+                 break;
+    }
+  }
+}
+
+void applyMove(move_t move, board_t B) {
+  int x1 = move->x1;
+  int x2 = move->x2;
+  int y1 = move->y1;
+  int y2 = move->y2;
+
+  board_piece_t gameBoard = B->gameBoard;
+  int curPlayer = B->curPlayer;
+  int startIndex = getIndex(x1, y1);
+  int endIndex = getIndex(x2, y2);
+
+  if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
+    if (curPlayer == WHITE) {
+      removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
+    }
+    else {
+      removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
+    }
+  }
+  else {
+    movePiece(gameBoard, startIndex, endIndex, curPlayer);
+  }
+}
+
 // check if the move is legal, if it is then complete the move
 bool isLegalMove(move_t move, board_t B) {
 
@@ -332,17 +413,19 @@ bool isLegalMove(move_t move, board_t B) {
       return false;
     }
 
-    // if you move the pawn diagonally and there is an enemy piece there
-    else if (rowDiff == -1 && abs(colDiff) == 1) {
-      removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
-      return true;
-    }
+    else return true;
 
-    // if you move the pawn into an open space
-    else {
-      movePiece(gameBoard, startIndex, endIndex, curPlayer);
-      return true;
-    }
+    // // if you move the pawn diagonally and there is an enemy piece there
+    // else if (rowDiff == -1 && abs(colDiff) == 1) {
+    //   removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
+    //   return true;
+    // }
+
+    // // if you move the pawn into an open space
+    // else {
+    //   movePiece(gameBoard, startIndex, endIndex, curPlayer);
+    //   return true;
+    // }
   }
   // check valid move for BLACK pawns
   else if (gameBoard[startIndex].piece->type == PAWN && curPlayer == BLACK) {
@@ -383,17 +466,19 @@ bool isLegalMove(move_t move, board_t B) {
       return false;
     }
 
-    // if you move the pawn diagonally and there is an enemy piece there
-    else if (rowDiff == 1 && abs(colDiff) == 1) {
-      removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
-      return true;
-    }
+    else return true;
 
-    // if you move the pawn into an open space
-    else {
-      movePiece(gameBoard, startIndex, endIndex, curPlayer);
-      return true;
-    }
+    // // if you move the pawn diagonally and there is an enemy piece there
+    // else if (rowDiff == 1 && abs(colDiff) == 1) {
+    //   removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
+    //   return true;
+    // }
+
+    // // if you move the pawn into an open space
+    // else {
+    //   movePiece(gameBoard, startIndex, endIndex, curPlayer);
+    //   return true;
+    // }
   }
 
   else if (gameBoard[startIndex].piece->type == KING) {
@@ -402,20 +487,22 @@ bool isLegalMove(move_t move, board_t B) {
       printf("Kings an only move one space in any direction.\n");
       return false;
     }
-    else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
-      if (curPlayer == WHITE) {
-        removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
-        return true;
-      }
-      else {
-        removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
-        return true;
-      }
-    }
-    else {
-      movePiece(gameBoard, startIndex, endIndex, curPlayer);
-      return true;
-    }
+
+    else return true;
+    // else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
+    //   if (curPlayer == WHITE) {
+    //     removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
+    //     return true;
+    //   }
+    //   else {
+    //     removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
+    //     return true;
+    //   }
+    // }
+    // else {
+    //   movePiece(gameBoard, startIndex, endIndex, curPlayer);
+    //   return true;
+    // }
   }
 
   else if (gameBoard[startIndex].piece->type == QUEEN) {
@@ -504,20 +591,22 @@ bool isLegalMove(move_t move, board_t B) {
         }
       }
     }
-    else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
-      if (curPlayer == WHITE) {
-        removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
-        return true;
-      }
-      else {
-        removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
-        return true;
-      }
-    }
-    else {
-      movePiece(gameBoard, startIndex, endIndex, curPlayer);
-      return true;
-    }
+
+    else return true;
+    // else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
+    //   if (curPlayer == WHITE) {
+    //     removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
+    //     return true;
+    //   }
+    //   else {
+    //     removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
+    //     return true;
+    //   }
+    // }
+    // else {
+    //   movePiece(gameBoard, startIndex, endIndex, curPlayer);
+    //   return true;
+    // }
   }
 
   else if (gameBoard[startIndex].piece->type == KNIGHT) {
@@ -525,20 +614,22 @@ bool isLegalMove(move_t move, board_t B) {
       printf("Illegal move for a knight.\n");
       return false;
     }
-    else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
-      if (curPlayer == WHITE) {
-        removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
-        return true;
-      }
-      else {
-        removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
-        return true;
-      }
-    }
-    else {
-      movePiece(gameBoard, startIndex, endIndex, curPlayer);
-      return true;
-    }
+
+    else return true;
+    // else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
+    //   if (curPlayer == WHITE) {
+    //     removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
+    //     return true;
+    //   }
+    //   else {
+    //     removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
+    //     return true;
+    //   }
+    // }
+    // else {
+    //   movePiece(gameBoard, startIndex, endIndex, curPlayer);
+    //   return true;
+    // }
   }
 
   else if (gameBoard[startIndex].piece->type == BISHOP) {
@@ -591,20 +682,22 @@ bool isLegalMove(move_t move, board_t B) {
         }
       }
     }
-    else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
-      if (curPlayer == WHITE) {
-        removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
-        return true;
-      }
-      else {
-        removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
-        return true;
-      }
-    }
-    else {
-      movePiece(gameBoard, startIndex, endIndex, curPlayer);
-      return true;
-    }
+
+    else return true;
+    // else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
+    //   if (curPlayer == WHITE) {
+    //     removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
+    //     return true;
+    //   }
+    //   else {
+    //     removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
+    //     return true;
+    //   }
+    // }
+    // else {
+    //   movePiece(gameBoard, startIndex, endIndex, curPlayer);
+    //   return true;
+    // }
   }
 
   else if (gameBoard[startIndex].piece->type == ROOK) {
@@ -649,20 +742,22 @@ bool isLegalMove(move_t move, board_t B) {
         }
       }
     }
-    else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
-      if (curPlayer == WHITE) {
-        removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
-        return true;
-      }
-      else {
-        removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
-        return true;
-      }
-    }
-    else {
-      movePiece(gameBoard, startIndex, endIndex, curPlayer);
-      return true;
-    }
+
+    else return true;
+    // else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
+    //   if (curPlayer == WHITE) {
+    //     removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
+    //     return true;
+    //   }
+    //   else {
+    //     removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
+    //     return true;
+    //   }
+    // }
+    // else {
+    //   movePiece(gameBoard, startIndex, endIndex, curPlayer);
+    //   return true;
+    // }
   }
 
   else return false;
@@ -768,6 +863,8 @@ int main() {
 
       m = parseMove(move);
     }
+
+    applyMove(m, B);
 
     // check game over
     if (gameOver(B) == WHITE) {

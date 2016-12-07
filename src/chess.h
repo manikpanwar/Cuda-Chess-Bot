@@ -55,14 +55,14 @@ struct move {
 };
 
 
-void undoMove(int x1, int y1, board_piece startPiece, int x2, int y2, board_piece endPiece);
+void undoMove(int x1, int y1, board_piece startPiece, int x2, int y2, board_piece endPiece, board_t B);
 
-void applyMove(move_t move, board_t board);
+void applyMove(move_t move, board_t B);
 
 int getIndex(int col, int row);
 
 /* isLegalMove should not modify the board, only applyMove should */
-bool isLegalMove(move_t m, board_t board);
+bool isLegalMove(move_t m, board_t B);
 
 /* ai needs in interface
  * getIndex
