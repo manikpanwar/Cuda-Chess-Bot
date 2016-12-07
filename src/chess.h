@@ -50,8 +50,10 @@ struct pos {
 
 struct move {
   // x cols, y rows
-  int x1, y1;
-  int x2, y2;
+  int x1;
+  int y1;
+  int x2;
+  int y2;
 };
 
 

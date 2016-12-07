@@ -297,7 +297,6 @@ void generatePossibleMovesPawn(board_t board, int x, int y,
   m4->x1 = x;
   m4->y1 = y;
 
-
   m1->x2 = x;
   m1->y2 = y + 1 * mf;
 
@@ -310,22 +309,27 @@ void generatePossibleMovesPawn(board_t board, int x, int y,
   m4->x2 = x + 1;
   m4->y2 = y + 1 * mf;
 
+  printf("Trying moves for pawns \n");
   if (isLegalMove(m1, board)) {
+    printf("M1::::::Adding a move \n");
     possibleMoves.push_back(m1);
   } else {
     free(m1);
   }
   if (isLegalMove(m2, board)) {
+    printf("Adding a move \n");
     possibleMoves.push_back(m2);
   } else {
     free(m2);
   }
   if (isLegalMove(m3, board)) {
+    printf("Adding a move \n");
     possibleMoves.push_back(m3);
   } else {
     free(m3);
   }
   if (isLegalMove(m4, board)) {
+    printf("Adding a move \n");
     possibleMoves.push_back(m4);
   } else {
     free(m4);
@@ -335,6 +339,7 @@ void generatePossibleMovesPawn(board_t board, int x, int y,
 std::vector<move_t> generatePossibleMoves(board_t board) {
   // given current state of board, generate all possible moves
   std::vector<move_t> possibleMoves;
+
   if (board->gameOver) {
     return possibleMoves;
   }
@@ -347,9 +352,11 @@ std::vector<move_t> generatePossibleMoves(board_t board) {
       int curPlayer = board->curPlayer;
       if (piece == NULL || (playerForPiece != curPlayer)) {
         // nothing at this position on the board
+        printf("NULL curPlayer  = %d playerForPiece = %d row = %d col = %d\n", curPlayer, playerForPiece, row, col);
         // or current position is for a player who doesn't have a turn right now
         continue;
       }
+      printf("curPlayer  = %d row = %d col = %d type = %d", curPlayer, row, col, piece->type);
 
       int x = piece->x;
       int y = piece->y;
@@ -383,6 +390,7 @@ std::vector<move_t> generatePossibleMoves(board_t board) {
       }
     }
   }
+  printf("Done making moves: Made %zu moves\n", possibleMoves.size());
   return possibleMoves;
 
 }

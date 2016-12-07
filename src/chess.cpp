@@ -2,6 +2,7 @@
 #include <string>
 #include <stdlib.h>
 #include "chess.h"
+#include "alphabeta.h"
 
 using std::string;
 
@@ -83,7 +84,7 @@ void initPlayers(board_t B) {
   game_board[getIndex(7, 0)].piece = w->rrook;
   game_board[getIndex(7, 0)].player = WHITE;
 
-  w->pawns = (pos_t)malloc(sizeof(struct pos));
+  w->pawns = (pos_t)malloc(BOARD_WIDTH * sizeof(struct pos));
   for(int i = 0; i < BOARD_WIDTH; i++) {
     //w->pawns[i] = (pos_t)malloc(sizeof(struct pos));
     w->pawns[i].x = i;
@@ -366,7 +367,7 @@ bool isLegalMove(move_t move, board_t B) {
   }
 
   // check if player owns piece at end position
-  else if (gameBoard[endIndex].player == curPlayer) {
+  else if (gameBoard[endIndex].player == curPlayer && gameBoard[endIndex].piece != NULL) {
     printf("You own the piece at end location.\n");
     return false;
   }
@@ -836,32 +837,40 @@ int main() {
   initGame(B);
   char move[10];
   while(1) {
+    move_t m;
     //cout << "Please enter a move: ";
-    printf("Please enter a move: \n");
-    //cin >> move;
-    scanf("%s", move);
-    // read input from cmdline (e.g. LK e 5, LB a 6, P1 b 3, etc...)
-
-    while(!isValidMoveFormat(move)) {
-      printf("Invalid move format!\nPlease enter a move: \n");
-      // get move
-      scanf("%s", move);
-    }
-
-    move_t m = parseMove(move);
-
-    while (!isLegalMove(m, B)) {
-      printf("Please enter a legal move.\n");
+    if (B->curPlayer == BLACK) {
       printf("Please enter a move: \n");
+      //cin >> move;
       scanf("%s", move);
+      // read input from cmdline (e.g. LK e 5, LB a 6, P1 b 3, etc...)
+
       while(!isValidMoveFormat(move)) {
-        printf("Invalid move format!\n");
+        printf("Invalid move format!\nPlease enter a move: \n");
         // get move
-        printf("Please enter a move: \n");
         scanf("%s", move);
       }
 
       m = parseMove(move);
+
+      while (!isLegalMove(m, B)) {
+        printf("Please enter a legal move.\n");
+        printf("Please enter a move: \n");
+        scanf("%s", move);
+        while(!isValidMoveFormat(move)) {
+          printf("Invalid move format!\n");
+          // get move
+          printf("Please enter a move: \n");
+          scanf("%s", move);
+        }
+
+        m = parseMove(move);
+      }
+    } else {
+      // AI LES GOOO
+      m = nextMove(B, MAXI);
+      printf("AI decided move col1 = %d row1 = %d: col2 = %d row2 = %d\n",
+          m->x1, m->y1, m->x2, m->y2);
     }
 
     applyMove(m, B);

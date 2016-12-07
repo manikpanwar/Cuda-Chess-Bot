@@ -16,4 +16,6 @@ struct minimaxResult {
   move_t move;
 };
 
+move_t nextMove(board_t board, int curPlayer);
+
 #endif
