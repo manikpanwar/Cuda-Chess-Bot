@@ -383,6 +383,7 @@ std::vector<move_t> generatePossibleMoves(board_t board) {
       }
     }
   }
+  return possibleMoves;
 
 }
 
@@ -465,7 +466,7 @@ minimaxResult_t maxi(int curDepth, int maxDepth, int alpha, int beta, board_t bo
     int newBeta = curRes->bestRes;
 
     // now undo this move
-    undoMove(x1, y1, startPiece, x2, y2, endPiece);
+    undoMove(x1, y1, startPiece, x2, y2, endPiece, board);
 
     // calculate new intervals | prune if applicable
     if (alpha < newBeta && newBeta < beta) {
@@ -526,7 +527,7 @@ minimaxResult_t mini(int curDepth, int maxDepth, int alpha, int beta, board_t bo
     int newAlpha = curRes->bestRes;
 
     // now undo this move
-    undoMove(x1, y1, startPiece, x2, y2, endPiece);
+    undoMove(x1, y1, startPiece, x2, y2, endPiece, board);
 
     // calculate new intervals | prune if applicable
     if (alpha < newAlpha && newAlpha < beta) {
