@@ -24,74 +24,74 @@ void initPlayers(board_t B) {
   w->king->y = 0;
   w->king->active = true;
   w->king->type = KING;
-  game_board[getIndex(3, 0)]->piece = w->king;
-  game_board[getIndex(3, 0)]->player = WHITE;
+  game_board[getIndex(3, 0)].piece = w->king;
+  game_board[getIndex(3, 0)].player = WHITE;
 
   w->queen = (pos_t)malloc(sizeof(struct pos));
   w->queen->x = 4;
   w->queen->y = 0;
   w->queen->active = true;
   w->queen->type = QUEEN;
-  game_board[getIndex(4, 0)]->piece = w->queen;
-  game_board[getIndex(4, 0)]->player = WHITE;
+  game_board[getIndex(4, 0)].piece = w->queen;
+  game_board[getIndex(4, 0)].player = WHITE;
 
   w->lbishop = (pos_t)malloc(sizeof(struct pos));
   w->lbishop->x = 2;
   w->lbishop->y = 0;
   w->lbishop->active = true;
   w->lbishop->type = BISHOP;
-  game_board[getIndex(2, 0)]->piece = w->lbishop;
-  game_board[getIndex(2, 0)]->player = WHITE;
+  game_board[getIndex(2, 0)].piece = w->lbishop;
+  game_board[getIndex(2, 0)].player = WHITE;
 
   w->rbishop = (pos_t)malloc(sizeof(struct pos));
   w->rbishop->x = 5;
   w->rbishop->y = 0;
   w->rbishop->active = true;
   w->rbishop->type = BISHOP;
-  game_board[getIndex(5, 0)]->piece = w->rbishop;
-  game_board[getIndex(5, 0)]->player = WHITE;
+  game_board[getIndex(5, 0)].piece = w->rbishop;
+  game_board[getIndex(5, 0)].player = WHITE;
 
   w->lknight = (pos_t)malloc(sizeof(struct pos));
   w->lknight->x = 1;
   w->lknight->y = 0;
   w->lknight->active = true;
   w->lknight->type = KNIGHT;
-  game_board[getIndex(1, 0)]->piece = w->lknight;
-  game_board[getIndex(1, 0)]->player = WHITE;
+  game_board[getIndex(1, 0)].piece = w->lknight;
+  game_board[getIndex(1, 0)].player = WHITE;
 
   w->rknight = (pos_t)malloc(sizeof(struct pos));
   w->rknight->x = 6;
   w->rknight->y = 0;
   w->rknight->active = true;
   w->rknight->type = KNIGHT;
-  game_board[getIndex(6, 0)]->piece = w->rknight;
-  game_board[getIndex(6, 0)]->player = WHITE;
+  game_board[getIndex(6, 0)].piece = w->rknight;
+  game_board[getIndex(6, 0)].player = WHITE;
 
   w->lrook = (pos_t)malloc(sizeof(struct pos));
   w->lrook->x = 0;
   w->lrook->y = 0;
   w->lrook->active = true;
   w->lrook->type = ROOK;
-  game_board[getIndex(0, 0)]->piece = w->lrook;
-  game_board[getIndex(0, 0)]->player = WHITE;
+  game_board[getIndex(0, 0)].piece = w->lrook;
+  game_board[getIndex(0, 0)].player = WHITE;
 
   w->rrook = (pos_t)malloc(sizeof(struct pos));
   w->rrook->x = 7;
   w->rrook->y = 0;
   w->rrook->active = true;
   w->rrook->type = ROOK;
-  game_board[getIndex(7, 0)]->piece = w->rrook;
-  game_board[getIndex(7, 0)]->player = WHITE;
+  game_board[getIndex(7, 0)].piece = w->rrook;
+  game_board[getIndex(7, 0)].player = WHITE;
 
-  w->pawns = (pos_t)malloc(sizeof(pos_t));
+  w->pawns = (pos_t)malloc(sizeof(struct pos));
   for(int i = 0; i < BOARD_WIDTH; i++) {
-    w->pawns[i] = (pos_t)malloc(sizeof(struct pos));
-    w->pawns[i]->x = i;
-    w->pawns[i]->y = 1;
-    w->pawns[i]->active = true;
-    w->pawns[i]->type = PAWN;
-    game_board[getIndex(1, i)]->piece = w->pawns[i];
-    game_board[getIndex(1, i)]->player = WHITE;
+    //w->pawns[i] = (pos_t)malloc(sizeof(struct pos));
+    w->pawns[i].x = i;
+    w->pawns[i].y = 1;
+    w->pawns[i].active = true;
+    w->pawns[i].type = PAWN;
+    game_board[getIndex(1, i)].piece = &w->pawns[i];
+    game_board[getIndex(1, i)].player = WHITE;
 
   }
 
@@ -100,74 +100,74 @@ void initPlayers(board_t B) {
   b->king->y = 7;
   b->king->active = true;
   b->king->type = KING;
-  game_board[getIndex(3, 7)]->piece = b->king;
-  game_board[getIndex(3, 7)]->player = BLACK;
+  game_board[getIndex(3, 7)].piece = b->king;
+  game_board[getIndex(3, 7)].player = BLACK;
 
   b->queen = (pos_t)malloc(sizeof(struct pos));
   b->queen->x = 4;
   b->queen->y = 7;
   b->queen->active = true;
   b->queen->type = QUEEN;
-  game_board[getIndex(4, 7)]->piece = b->queen;
-  game_board[getIndex(4, 7)]->player = BLACK;
+  game_board[getIndex(4, 7)].piece = b->queen;
+  game_board[getIndex(4, 7)].player = BLACK;
 
   b->lbishop = (pos_t)malloc(sizeof(struct pos));
   b->lbishop->x = 2;
   b->lbishop->y = 7;
   b->lbishop->active = true;
   b->lbishop->type = BISHOP;
-  game_board[getIndex(2, 7)]->piece = b->lbishop;
-  game_board[getIndex(2, 7)]->player = BLACK;
+  game_board[getIndex(2, 7)].piece = b->lbishop;
+  game_board[getIndex(2, 7)].player = BLACK;
 
   b->rbishop = (pos_t)malloc(sizeof(struct pos));
   b->rbishop->x = 5;
   b->rbishop->y = 7;
   b->rbishop->active = true;
   b->rbishop->type = BISHOP;
-  game_board[getIndex(5, 7)]->piece = b->rbishop;
-  game_board[getIndex(5, 7)]->player = BLACK;
+  game_board[getIndex(5, 7)].piece = b->rbishop;
+  game_board[getIndex(5, 7)].player = BLACK;
 
   b->lknight = (pos_t)malloc(sizeof(struct pos));
   b->lknight->x = 1;
   b->lknight->y = 7;
   b->lknight->active = true;
   b->lknight->type = KNIGHT;
-  game_board[getIndex(1, 7)]->piece = b->lknight;
-  game_board[getIndex(1, 7)]->player = BLACK;
+  game_board[getIndex(1, 7)].piece = b->lknight;
+  game_board[getIndex(1, 7)].player = BLACK;
 
   b->rknight = (pos_t)malloc(sizeof(struct pos));
   b->rknight->x = 6;
   b->rknight->y = 7;
   b->rknight->active = true;
   b->rknight->type = KNIGHT;
-  game_board[getIndex(6, 7)]->piece = b->rknight;
-  game_board[getIndex(6, 7)]->player = BLACK;
+  game_board[getIndex(6, 7)].piece = b->rknight;
+  game_board[getIndex(6, 7)].player = BLACK;
 
   b->lrook = (pos_t)malloc(sizeof(struct pos));
   b->lrook->x = 0;
   b->lrook->y = 7;
   b->lrook->active = true;
   b->lrook->type = ROOK;
-  game_board[getIndex(0, 7)]->piece = b->lrook;
-  game_board[getIndex(0, 7)]->player = BLACK;
+  game_board[getIndex(0, 7)].piece = b->lrook;
+  game_board[getIndex(0, 7)].player = BLACK;
 
   b->rrook = (pos_t)malloc(sizeof(struct pos));
   b->rrook->x = 7;
   b->rrook->y = 7;
   b->rrook->active = true;
   b->rrook->type = ROOK;
-  game_board[getIndex(7, 7)]->piece = b->rrook;
-  game_board[getIndex(7, 7)]->player = BLACK;
+  game_board[getIndex(7, 7)].piece = b->rrook;
+  game_board[getIndex(7, 7)].player = BLACK;
 
-  b->pawns = (pos_t)malloc(BOARD_WIDTH * sizeof(pos_t));
+  b->pawns = (pos_t)malloc(BOARD_WIDTH * sizeof(struct pos));
   for(int i = 0; i < BOARD_WIDTH; i++) {
-    b->pawns[i] = (pos_t)malloc(sizeof(struct pos));
-    b->pawns[i]->x = i;
-    b->pawns[i]->y = 6;
-    b->pawns[i]->active = true;
-    b->pawns[i]->type = PAWN;
-    game_board[getIndex(i, 7)]->piece = b->pawns[i];
-    game_board[getIndex(i, 7)]->player = BLACK;
+    //b->pawns[i] = (pos_t)malloc(sizeof(struct pos));
+    b->pawns[i].x = i;
+    b->pawns[i].y = 6;
+    b->pawns[i].active = true;
+    b->pawns[i].type = PAWN;
+    game_board[getIndex(i, 7)].piece = &b->pawns[i];
+    game_board[getIndex(i, 7)].player = BLACK;
   }
 
   B->white = w;
@@ -214,10 +214,10 @@ bool isValidMoveFormat(char m[]) {
 }
 
 void removeTakenPiece(player_t p, int startIndex, int endIndex, board_piece_t gameBoard, int curPlayer) {
-  switch (gameBoard[endIndex]->piece->type) {
+  switch (gameBoard[endIndex].piece->type) {
     case PAWN: for (int i = 0; i < 8; i++) {
-                 if (p->pawns[i]->active) {
-                   p->pawns[i]->active = false;
+                 if (p->pawns[i].active) {
+                   p->pawns[i].active = false;
                    break;
                  }
                }
@@ -248,15 +248,15 @@ void removeTakenPiece(player_t p, int startIndex, int endIndex, board_piece_t ga
     case KING: p->king->active = false;
                break;
   }
-  gameBoard[endIndex]->piece->type = gameBoard[startIndex]->piece->type;
-  gameBoard[endIndex]->player = curPlayer;
-  gameBoard[startIndex] = NULL;
+  gameBoard[endIndex].piece->type = gameBoard[startIndex].piece->type;
+  gameBoard[endIndex].player = curPlayer;
+  gameBoard[startIndex].piece = NULL;
 }
 
 void movePiece(board_piece_t gameBoard, int startIndex, int endIndex, int curPlayer) {
-  gameBoard[endIndex]->piece->type = gameBoard[startIndex]->piece->type;
-  gameBoard[endIndex]->player = curPlayer;
-  gameBoard[startIndex] = NULL;
+  gameBoard[endIndex].piece = gameBoard[startIndex].piece;
+  gameBoard[endIndex].player = curPlayer;
+  gameBoard[startIndex].piece = NULL;
 }
 
 // check if the move is legal, if it is then complete the move
@@ -273,19 +273,19 @@ bool isLegalMove(move_t move, board_t B) {
   int endIndex = getIndex(x2, y2);
 
   // check if there is a piece at starting location
-  if (gameBoard[startIndex] == NULL) {
+  if (gameBoard[startIndex].piece == NULL) {
     printf("There is no piece at the specified location.\n");
     return false;
   }
 
   // check if player owns piece he's trying to move
-  else if (gameBoard[startIndex]->player != curPlayer) {
+  else if (gameBoard[startIndex].player != curPlayer) {
     printf("That is not your piece.\n");
     return false;
   }
 
   // check if player owns piece at end position
-  else if (gameBoard[endIndex]->player == curPlayer) {
+  else if (gameBoard[endIndex].player == curPlayer) {
     printf("You own the piece at end location.\n");
     return false;
   }
@@ -294,7 +294,7 @@ bool isLegalMove(move_t move, board_t B) {
   int colDiff = x1 - x2;
 
   // check valid moves for WHITE pawns since it will differ depending on player
-  if (gameBoard[startIndex]->piece->type == PAWN && curPlayer == WHITE) {
+  if (gameBoard[startIndex].piece->type == PAWN && curPlayer == WHITE) {
 
     // if pawn is not in starting position, it can only move one space
     if (y1 != 1 && rowDiff <= 2) {
@@ -321,13 +321,13 @@ bool isLegalMove(move_t move, board_t B) {
     }
 
     // pawns can only move diagonally if there is an enemy piece there
-    else if (abs(colDiff) == 1 and rowDiff == -1 && gameBoard[endIndex] == NULL) {
+    else if (abs(colDiff) == 1 and rowDiff == -1 && gameBoard[endIndex].piece == NULL) {
       printf("Pawns can only move diagonally if there is an enemy piece there.\n");
       return false;
     }
 
     // pawns can't move directly forward into an enemy piece
-    else if (rowDiff == -1 && colDiff == 0 && gameBoard[endIndex] != NULL) {
+    else if (rowDiff == -1 && colDiff == 0 && gameBoard[endIndex].piece != NULL) {
       printf("Pawns can't move directly forward into an enemy piece.\n");
       return false;
     }
@@ -345,7 +345,7 @@ bool isLegalMove(move_t move, board_t B) {
     }
   }
   // check valid move for BLACK pawns
-  else if (gameBoard[startIndex]->piece->type == PAWN && curPlayer == BLACK) {
+  else if (gameBoard[startIndex].piece->type == PAWN && curPlayer == BLACK) {
 
     // if pawn is not in starting position, it can only move one space
     if (y1 != 6 && rowDiff >= 2) {
@@ -372,13 +372,13 @@ bool isLegalMove(move_t move, board_t B) {
     }
 
     // pawns can only move diagonally if there is an enemy piece there
-    else if (abs(colDiff) == 1 and rowDiff == 1 && gameBoard[endIndex] == NULL) {
+    else if (abs(colDiff) == 1 and rowDiff == 1 && gameBoard[endIndex].piece == NULL) {
       printf("Pawns can only move diagonally if there is an enemy piece there.\n");
       return false;
     }
 
     // pawns can't move directly forward into an enemy piece
-    else if (rowDiff == 1 && colDiff == 0 && gameBoard[endIndex] != NULL) {
+    else if (rowDiff == 1 && colDiff == 0 && gameBoard[endIndex].piece != NULL) {
       printf("Pawns can't move directly forward into an enemy piece.\n");
       return false;
     }
@@ -396,13 +396,13 @@ bool isLegalMove(move_t move, board_t B) {
     }
   }
 
-  else if (gameBoard[startIndex]->piece->type == KING) {
+  else if (gameBoard[startIndex].piece->type == KING) {
     // kings can only move one space
     if (abs(rowDiff) > 1 || abs(colDiff) > 1) {
       printf("Kings an only move one space in any direction.\n");
       return false;
     }
-    else if (gameBoard[endIndex] != NULL && gameBoard[endIndex]->player != curPlayer) {
+    else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
       if (curPlayer == WHITE) {
         removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
         return true;
@@ -418,7 +418,7 @@ bool isLegalMove(move_t move, board_t B) {
     }
   }
 
-  else if (gameBoard[startIndex]->piece->type == QUEEN) {
+  else if (gameBoard[startIndex].piece->type == QUEEN) {
     if (abs(rowDiff) != abs(colDiff) && rowDiff != 0 && colDiff != 0) {
       printf("Queens can only move diagonally or straight.\n");
       return false;
@@ -428,7 +428,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = y1-1; i > y2; i--) {
         for (int j = x1-1; j > x2; j--) {
           int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex] != NULL) {
+          if (gameBoard[tempIndex].piece != NULL) {
             printf("There is a piece blocking your move.\n");
             return false;
           }
@@ -439,7 +439,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = y1+1; i < y2; i++) {
         for (int j = x1+1; j < x2; j++) {
           int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex] != NULL) {
+          if (gameBoard[tempIndex].piece != NULL) {
             printf("There is a piece blocking your move.\n");
             return false;
           }
@@ -450,7 +450,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = y1-1; i > y2; i--) {
         for (int j = x1+1; j < x2; j++) {
           int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex] != NULL) {
+          if (gameBoard[tempIndex].piece != NULL) {
             printf("There is a piece blocking your move.\n");
             return false;
           }
@@ -461,7 +461,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = y1+1; i < y2; i++) {
         for (int j = x1-1; j > x2; j--) {
           int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex] != NULL) {
+          if (gameBoard[tempIndex].piece != NULL) {
             printf("There is a piece blocking your move.\n");
             return false;
           }
@@ -471,7 +471,7 @@ bool isLegalMove(move_t move, board_t B) {
     else if (rowDiff == 0 && colDiff > 0) {
       for (int i = x1-1; i > x2; i--) {
         int tempIndex = getIndex(i, y1);
-        if (gameBoard[tempIndex] != NULL) {
+        if (gameBoard[tempIndex].piece != NULL) {
           printf("There is a piece blocking your move.\n");
           return false;
         }
@@ -480,7 +480,7 @@ bool isLegalMove(move_t move, board_t B) {
     else if (rowDiff == 0 && colDiff < 0) {
       for (int i = x1+1; i < x2; i++) {
         int tempIndex = getIndex(i, y1);
-        if (gameBoard[tempIndex] != NULL) {
+        if (gameBoard[tempIndex].piece != NULL) {
           printf("There is a piece blocking your move.\n");
           return false;
         }
@@ -489,7 +489,7 @@ bool isLegalMove(move_t move, board_t B) {
     else if (rowDiff > 0 && colDiff == 0) {
       for (int i = y1-1; i > y2; i--) {
         int tempIndex = getIndex(x1, i);
-        if (gameBoard[tempIndex] != NULL) {
+        if (gameBoard[tempIndex].piece != NULL) {
           printf("There is a piece blocking your move.\n");
           return false;
         }
@@ -498,13 +498,13 @@ bool isLegalMove(move_t move, board_t B) {
     else if (rowDiff < 0 && colDiff == 0) {
       for (int i = y1+1; i < y2; i++) {
         int tempIndex = getIndex(x1, i);
-        if (gameBoard[tempIndex] != NULL) {
+        if (gameBoard[tempIndex].piece != NULL) {
           printf("There is a piece blocking your move.\n");
           return false;
         }
       }
     }
-    else if (gameBoard[endIndex] != NULL && gameBoard[endIndex]->player != curPlayer) {
+    else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
       if (curPlayer == WHITE) {
         removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
         return true;
@@ -520,12 +520,12 @@ bool isLegalMove(move_t move, board_t B) {
     }
   }
 
-  else if (gameBoard[startIndex]->piece->type == KNIGHT) {
+  else if (gameBoard[startIndex].piece->type == KNIGHT) {
     if (abs(rowDiff) * abs(colDiff) != 2) {
       printf("Illegal move for a knight.\n");
       return false;
     }
-    else if (gameBoard[endIndex] != NULL && gameBoard[endIndex]->player != curPlayer) {
+    else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
       if (curPlayer == WHITE) {
         removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
         return true;
@@ -541,7 +541,7 @@ bool isLegalMove(move_t move, board_t B) {
     }
   }
 
-  else if (gameBoard[startIndex]->piece->type == BISHOP) {
+  else if (gameBoard[startIndex].piece->type == BISHOP) {
     if (abs(rowDiff) != abs(colDiff)) {
       printf("Bishops can only move diagonally.\n");
       return false;
@@ -551,7 +551,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = y1-1; i > y2; i--) {
         for (int j = x1-1; j > x2; j--) {
           int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex] != NULL) {
+          if (gameBoard[tempIndex].piece != NULL) {
             printf("There is a piece blocking your move.\n");
             return false;
           }
@@ -562,7 +562,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = y1+1; i < y2; i++) {
         for (int j = x1+1; j < x2; j++) {
           int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex] != NULL) {
+          if (gameBoard[tempIndex].piece != NULL) {
             printf("There is a piece blocking your move.\n");
             return false;
           }
@@ -573,7 +573,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = y1-1; i > y2; i--) {
         for (int j = x1+1; j < x2; j++) {
           int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex] != NULL) {
+          if (gameBoard[tempIndex].piece != NULL) {
             printf("There is a piece blocking your move.\n");
             return false;
           }
@@ -584,14 +584,14 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = y1+1; i < y2; i++) {
         for (int j = x1-1; j > x2; j--) {
           int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex] != NULL) {
+          if (gameBoard[tempIndex].piece != NULL) {
             printf("There is a piece blocking your move.\n");
             return false;
           }
         }
       }
     }
-    else if (gameBoard[endIndex] != NULL && gameBoard[endIndex]->player != curPlayer) {
+    else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
       if (curPlayer == WHITE) {
         removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
         return true;
@@ -607,7 +607,7 @@ bool isLegalMove(move_t move, board_t B) {
     }
   }
 
-  else if (gameBoard[startIndex]->piece->type == ROOK) {
+  else if (gameBoard[startIndex].piece->type == ROOK) {
     if (rowDiff != 0 && colDiff != 0) {
       printf("Rooks can only move directly forward or sideways.\n");
       return false;
@@ -616,7 +616,7 @@ bool isLegalMove(move_t move, board_t B) {
     else if (rowDiff == 0 && colDiff > 0) {
       for (int i = x1-1; i > x2; i--) {
         int tempIndex = getIndex(i, y1);
-        if (gameBoard[tempIndex] != NULL) {
+        if (gameBoard[tempIndex].piece != NULL) {
           printf("There is a piece blocking your move.\n");
           return false;
         }
@@ -625,7 +625,7 @@ bool isLegalMove(move_t move, board_t B) {
     else if (rowDiff == 0 && colDiff < 0) {
       for (int i = x1+1; i < x2; i++) {
         int tempIndex = getIndex(i, y1);
-        if (gameBoard[tempIndex] != NULL) {
+        if (gameBoard[tempIndex].piece != NULL) {
           printf("There is a piece blocking your move.\n");
           return false;
         }
@@ -634,7 +634,7 @@ bool isLegalMove(move_t move, board_t B) {
     else if (rowDiff > 0 && colDiff == 0) {
       for (int i = y1-1; i > y2; i--) {
         int tempIndex = getIndex(x1, i);
-        if (gameBoard[tempIndex] != NULL) {
+        if (gameBoard[tempIndex].piece != NULL) {
           printf("There is a piece blocking your move.\n");
           return false;
         }
@@ -643,13 +643,13 @@ bool isLegalMove(move_t move, board_t B) {
     else if (rowDiff < 0 && colDiff == 0) {
       for (int i = y1+1; i < y2; i++) {
         int tempIndex = getIndex(x1, i);
-        if (gameBoard[tempIndex] != NULL) {
+        if (gameBoard[tempIndex].piece != NULL) {
           printf("There is a piece blocking your move.\n");
           return false;
         }
       }
     }
-    else if (gameBoard[endIndex] != NULL && gameBoard[endIndex]->player != curPlayer) {
+    else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
       if (curPlayer == WHITE) {
         removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
         return true;
@@ -671,8 +671,8 @@ bool isLegalMove(move_t move, board_t B) {
 move_t parseMove (string move) {
   int x1, y1, x2, y2;
 
-  y1 = atoi(move[1].c_str());
-  y2 = atoi(move[7].c_str());
+  y1 = (int)move[1];
+  y2 = (int)move[7];
 
   switch (move[0]) {
     case 'a': x1 = 0;
