@@ -14,7 +14,7 @@ minimaxResult_t maxi(int curDepth, int maxDepth,
 
 
 void generatePossibleMovesKing(board_t board, int x, int y,
-    std::vector<move_t> possibleMoves) {
+    std::vector<move_t>* possibleMoves) {
   // king can move in any direction
   // x == x1, y == y1
   move_t m1, m2, m3, m4, m5, m6, m7, m8;
@@ -68,42 +68,42 @@ void generatePossibleMovesKing(board_t board, int x, int y,
   m8->y2 = y + 1;
 
   if (isLegalMove(m1, board)) {
-    possibleMoves.push_back(m1);
+    (*possibleMoves).push_back(m1);
   } else {
     free(m1);
   }
   if (isLegalMove(m2, board)) {
-    possibleMoves.push_back(m2);
+    (*possibleMoves).push_back(m2);
   } else {
     free(m2);
   }
   if (isLegalMove(m3, board)) {
-    possibleMoves.push_back(m3);
+    (*possibleMoves).push_back(m3);
   } else {
     free(m3);
   }
   if (isLegalMove(m4, board)) {
-    possibleMoves.push_back(m4);
+    (*possibleMoves).push_back(m4);
   } else {
     free(m4);
   }
   if (isLegalMove(m5, board)) {
-    possibleMoves.push_back(m5);
+    (*possibleMoves).push_back(m5);
   } else {
     free(m5);
   }
   if (isLegalMove(m6, board)) {
-    possibleMoves.push_back(m6);
+    (*possibleMoves).push_back(m6);
   } else {
     free(m6);
   }
   if (isLegalMove(m7, board)) {
-    possibleMoves.push_back(m7);
+    (*possibleMoves).push_back(m7);
   } else {
     free(m7);
   }
   if (isLegalMove(m8, board)) {
-    possibleMoves.push_back(m8);
+    (*possibleMoves).push_back(m8);
   } else {
     free(m8);
   }
@@ -111,7 +111,7 @@ void generatePossibleMovesKing(board_t board, int x, int y,
 
 
 void generatePossibleMovesQueen(board_t board, int x, int y,
-    std::vector<move_t> possibleMoves) {
+    std::vector<move_t>* possibleMoves) {
 
   for (int row = 0; row < BOARD_HEIGHT; row++) {
     for (int col = 0; col < BOARD_WIDTH; col++) {
@@ -121,7 +121,7 @@ void generatePossibleMovesQueen(board_t board, int x, int y,
       curMove->x2 = col;
       curMove->y2 = row;
       if (isLegalMove(curMove, board)) {
-        possibleMoves.push_back(curMove);
+        (*possibleMoves).push_back(curMove);
       } else {
         free(curMove);
       }
@@ -131,7 +131,7 @@ void generatePossibleMovesQueen(board_t board, int x, int y,
 }
 
 void generatePossibleMovesBishop(board_t board, int x, int y,
-    std::vector<move_t> possibleMoves) {
+    std::vector<move_t>* possibleMoves) {
 
   for (int row = 0; row < BOARD_HEIGHT; row++) {
     for (int col = 0; col < BOARD_WIDTH; col++) {
@@ -142,7 +142,7 @@ void generatePossibleMovesBishop(board_t board, int x, int y,
         curMove->x2 = col;
         curMove->y2 = row;
         if (isLegalMove(curMove, board)) {
-          possibleMoves.push_back(curMove);
+          (*possibleMoves).push_back(curMove);
         } else {
           free(curMove);
         }
@@ -153,7 +153,7 @@ void generatePossibleMovesBishop(board_t board, int x, int y,
 }
 
 void generatePossibleMovesKnight(board_t board, int x, int y,
-    std::vector<move_t> possibleMoves) {
+    std::vector<move_t>* possibleMoves) {
   // x == x1, y == y1
   move_t m1, m2, m3, m4, m5, m6, m7, m8;
   m1 = (move_t)malloc(sizeof(struct move));
@@ -206,42 +206,50 @@ void generatePossibleMovesKnight(board_t board, int x, int y,
   m8->y2 = y + 2;
 
   if (isLegalMove(m1, board)) {
-    possibleMoves.push_back(m1);
+    // printf("adding knight move\n");
+    (*possibleMoves).push_back(m1);
   } else {
     free(m1);
   }
   if (isLegalMove(m2, board)) {
-    possibleMoves.push_back(m2);
+    // printf("adding knight move\n");
+    (*possibleMoves).push_back(m2);
   } else {
     free(m2);
   }
   if (isLegalMove(m3, board)) {
-    possibleMoves.push_back(m3);
+    // printf("adding knight move\n");
+    (*possibleMoves).push_back(m3);
   } else {
     free(m3);
   }
   if (isLegalMove(m4, board)) {
-    possibleMoves.push_back(m4);
+    // printf("adding knight move\n");
+    (*possibleMoves).push_back(m4);
   } else {
     free(m4);
   }
   if (isLegalMove(m5, board)) {
-    possibleMoves.push_back(m5);
+    // printf("adding knight move\n");
+    (*possibleMoves).push_back(m5);
   } else {
     free(m5);
   }
   if (isLegalMove(m6, board)) {
-    possibleMoves.push_back(m6);
+    // printf("adding knight move\n");
+    (*possibleMoves).push_back(m6);
   } else {
     free(m6);
   }
   if (isLegalMove(m7, board)) {
-    possibleMoves.push_back(m7);
+    // printf("adding knight move\n");
+    (*possibleMoves).push_back(m7);
   } else {
     free(m7);
   }
   if (isLegalMove(m8, board)) {
-    possibleMoves.push_back(m8);
+    // printf("adding knight move\n");
+    (*possibleMoves).push_back(m8);
   } else {
     free(m8);
   }
@@ -249,7 +257,7 @@ void generatePossibleMovesKnight(board_t board, int x, int y,
 }
 
 void generatePossibleMovesRook(board_t board, int x, int y,
-    std::vector<move_t> possibleMoves) {
+    std::vector<move_t>* possibleMoves) {
 
   for (int row = 0; row < BOARD_HEIGHT; row++) {
     int col = x;  // col stays the same TODO: confirm
@@ -259,7 +267,7 @@ void generatePossibleMovesRook(board_t board, int x, int y,
     curMove->x2 = col;
     curMove->y2 = row;
     if (isLegalMove(curMove, board)) {
-      possibleMoves.push_back(curMove);
+      (*possibleMoves).push_back(curMove);
     } else {
       free(curMove);
     }
@@ -272,7 +280,7 @@ void generatePossibleMovesRook(board_t board, int x, int y,
     curMove->x2 = col;
     curMove->y2 = row;
     if (isLegalMove(curMove, board)) {
-      possibleMoves.push_back(curMove);
+      (*possibleMoves).push_back(curMove);
     } else {
       free(curMove);
     }
@@ -280,7 +288,7 @@ void generatePossibleMovesRook(board_t board, int x, int y,
 }
 
 void generatePossibleMovesPawn(board_t board, int x, int y,
-    std::vector<move_t> possibleMoves, int curPlayer) {
+    std::vector<move_t>* possibleMoves, int curPlayer) {
   int mf = (curPlayer == WHITE) ? 1 : -1;  // multFactor
   move_t m1, m2, m3, m4;
   m1 = (move_t)malloc(sizeof(struct move));
@@ -309,28 +317,23 @@ void generatePossibleMovesPawn(board_t board, int x, int y,
   m4->x2 = x + 1;
   m4->y2 = y + 1 * mf;
 
-  printf("Trying moves for pawns \n");
   if (isLegalMove(m1, board)) {
-    printf("M1::::::Adding a move \n");
-    possibleMoves.push_back(m1);
+    (*possibleMoves).push_back(m1);
   } else {
     free(m1);
   }
   if (isLegalMove(m2, board)) {
-    printf("Adding a move \n");
-    possibleMoves.push_back(m2);
+    (*possibleMoves).push_back(m2);
   } else {
     free(m2);
   }
   if (isLegalMove(m3, board)) {
-    printf("Adding a move \n");
-    possibleMoves.push_back(m3);
+    (*possibleMoves).push_back(m3);
   } else {
     free(m3);
   }
   if (isLegalMove(m4, board)) {
-    printf("Adding a move \n");
-    possibleMoves.push_back(m4);
+    (*possibleMoves).push_back(m4);
   } else {
     free(m4);
   }
@@ -352,45 +355,45 @@ std::vector<move_t> generatePossibleMoves(board_t board) {
       int curPlayer = board->curPlayer;
       if (piece == NULL || (playerForPiece != curPlayer)) {
         // nothing at this position on the board
-        printf("NULL curPlayer  = %d playerForPiece = %d row = %d col = %d\n", curPlayer, playerForPiece, row, col);
+        // printf("NULL curPlayer  = %d playerForPiece = %d row = %d col = %d\n", curPlayer, playerForPiece, row, col);
         // or current position is for a player who doesn't have a turn right now
         continue;
       }
-      printf("curPlayer  = %d row = %d col = %d type = %d", curPlayer, row, col, piece->type);
+      // printf("curPlayer  = %d row = %d col = %d type = %d", curPlayer, row, col, piece->type);
 
       int x = piece->x;
       int y = piece->y;
 
       switch (piece->type) {
         case KING: {
-                     generatePossibleMovesKing(board, x, y, possibleMoves);
+                     generatePossibleMovesKing(board, x, y, &possibleMoves);
                      break;
                    }
         case QUEEN: {
-                      generatePossibleMovesQueen(board, x, y, possibleMoves);
+                      generatePossibleMovesQueen(board, x, y, &possibleMoves);
                       break;
                     }
         case BISHOP: {
-                       generatePossibleMovesBishop(board, x, y, possibleMoves);
+                       generatePossibleMovesBishop(board, x, y, &possibleMoves);
                        break;
                      }
         case KNIGHT: {
-                       generatePossibleMovesKnight(board, x, y, possibleMoves);
+                       generatePossibleMovesKnight(board, x, y, &possibleMoves);
                        break;
                      }
         case ROOK: {
-                     generatePossibleMovesRook(board, x, y, possibleMoves);
+                     generatePossibleMovesRook(board, x, y, &possibleMoves);
                      break;
                    }
         case PAWN: {
                      generatePossibleMovesPawn(board, x, y,
-                         possibleMoves, curPlayer);
+                         &possibleMoves, curPlayer);
                      break;
                    }
       }
     }
   }
-  printf("Done making moves: Made %zu moves\n", possibleMoves.size());
+  // printf("Done making moves: Made %zu moves\n", possibleMoves.size());
   return possibleMoves;
 
 }

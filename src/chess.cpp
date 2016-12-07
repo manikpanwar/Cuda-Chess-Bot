@@ -1,10 +1,14 @@
 #include <stdio.h>
+#include <iostream>
 #include <string>
 #include <stdlib.h>
+#include <cstring>
 #include "chess.h"
 #include "alphabeta.h"
 
 using std::string;
+
+int AI = 0;
 
 // a lot of game implementation code taken from https://github.com/jordancunningham/Chess/blob/master/Chess_Shared/Chess_Shared/Chess_Shared.cpp
 
@@ -91,8 +95,8 @@ void initPlayers(board_t B) {
     w->pawns[i].y = 1;
     w->pawns[i].active = true;
     w->pawns[i].type = PAWN;
-    game_board[getIndex(1, i)].piece = &w->pawns[i];
-    game_board[getIndex(1, i)].player = WHITE;
+    game_board[getIndex(i, 1)].piece = &w->pawns[i];
+    game_board[getIndex(i, 1)].player = WHITE;
 
   }
 
@@ -167,8 +171,8 @@ void initPlayers(board_t B) {
     b->pawns[i].y = 6;
     b->pawns[i].active = true;
     b->pawns[i].type = PAWN;
-    game_board[getIndex(i, 7)].piece = &b->pawns[i];
-    game_board[getIndex(i, 7)].player = BLACK;
+    game_board[getIndex(i, 6)].piece = &b->pawns[i];
+    game_board[getIndex(i, 6)].player = BLACK;
   }
 
   B->white = w;
@@ -181,9 +185,11 @@ void initGame(board_t B) {
 }
 
 // checks if the format of the move is valid
-bool isValidMoveFormat(char m[]) {
-  string move(m);
-  if (move.length() != 8) {
+bool isValidMoveFormat(char move[]) {
+  printf(move);
+  //string move(m);
+  if (std::strlen(move) != 6) {
+    printf("length = %d", std::strlen(move));
     return false;
   }
 
@@ -197,17 +203,17 @@ bool isValidMoveFormat(char m[]) {
     return false;
   }
 
-  else if (move[3] != 't' && move[4] != 'o') {
+  else if (move[2] != 't' && move[3] != 'o') {
     return false;
   }
 
-  else if (move[6] != 'a' && move[6] != 'b' && move[6] != 'c' && move[6] != 'd' &&
-      move[6] != 'e' && move[6] != 'f' && move[6] != 'g' && move[6] != 'h') {
+  else if (move[4] != 'a' && move[4] != 'b' && move[4] != 'c' && move[4] != 'd' &&
+      move[4] != 'e' && move[4] != 'f' && move[4] != 'g' && move[4] != 'h') {
     return false;
   }
 
-  else if (move[7] != '0' && move[7] != '1' && move[7] != '2' && move[7] != '3' &&
-      move[7] != '4' && move[7] != '5' && move[7] != '6' && move[7] != '7') {
+  else if (move[5] != '0' && move[5] != '1' && move[5] != '2' && move[5] != '3' &&
+      move[5] != '4' && move[5] != '5' && move[5] != '6' && move[5] != '7') {
     return false;
   }
 
@@ -349,6 +355,13 @@ bool isLegalMove(move_t move, board_t B) {
   int y1 = move->y1;
   int y2 = move->y2;
 
+  if (!AI) printf("Move x1 = %d y1 = %d x2 = %d y2 = %d", x1, y1, x2, y2);
+
+  if (x2 < 0 || x2 >= BOARD_WIDTH || y2 < 0 || y2 >= BOARD_HEIGHT) {
+    if (!AI) printf("You can't move off the board plz\n");
+    return false;
+  }
+
   board_piece_t gameBoard = B->gameBoard;
   int curPlayer = B->curPlayer;
   int startIndex = getIndex(x1, y1);
@@ -356,19 +369,19 @@ bool isLegalMove(move_t move, board_t B) {
 
   // check if there is a piece at starting location
   if (gameBoard[startIndex].piece == NULL) {
-    printf("There is no piece at the specified location.\n");
+    if (!AI) printf("There is no piece at the specified location.\n");
     return false;
   }
 
   // check if player owns piece he's trying to move
   else if (gameBoard[startIndex].player != curPlayer) {
-    printf("That is not your piece.\n");
+    if (!AI) printf("That is not your piece.\n");
     return false;
   }
 
   // check if player owns piece at end position
   else if (gameBoard[endIndex].player == curPlayer && gameBoard[endIndex].piece != NULL) {
-    printf("You own the piece at end location.\n");
+    if (!AI) printf("You own the piece at end location.\n");
     return false;
   }
 
@@ -379,38 +392,38 @@ bool isLegalMove(move_t move, board_t B) {
   if (gameBoard[startIndex].piece->type == PAWN && curPlayer == WHITE) {
 
     // if pawn is not in starting position, it can only move one space
-    if (y1 != 1 && rowDiff <= 2) {
-      printf("Pawns can only move 1 space after their first move.\n");
+    if (y1 != 1 && rowDiff <= -2) {
+      if (!AI) printf("Pawns can only move 1 space after their first move.\n");
       return false;
     }
 
     // if pawn is in starting position, it can move up to 2 moves
-    else if (y1 == 1 && rowDiff < 2) {
-      printf("Pawns can only move 2 spaces on first move.\n");
+    else if (y1 == 1 && rowDiff < -2) {
+      if (!AI) printf("Pawns can only move 2 spaces on first move.\n");
       return false;
     }
 
     // pawns can only move forward, not sideways or backward
     else if (rowDiff >= 0) {
-      printf("Pawns can only move forward.\n");
+      if (!AI) printf("Pawns can only move forward.\n");
       return false;
     }
 
     // at max pawns can move one column over at a time
     else if (abs(colDiff) > 1) {
-      printf("Pawns can't move that much horizontally.\n");
+      if (!AI) printf("Pawns can't move that much horizontally.\n");
       return false;
     }
 
     // pawns can only move diagonally if there is an enemy piece there
     else if (abs(colDiff) == 1 and rowDiff == -1 && gameBoard[endIndex].piece == NULL) {
-      printf("Pawns can only move diagonally if there is an enemy piece there.\n");
+      if (!AI) printf("Pawns can only move diagonally if there is an enemy piece there.\n");
       return false;
     }
 
     // pawns can't move directly forward into an enemy piece
     else if (rowDiff == -1 && colDiff == 0 && gameBoard[endIndex].piece != NULL) {
-      printf("Pawns can't move directly forward into an enemy piece.\n");
+      if (!AI) printf("Pawns can't move directly forward into an enemy piece.\n");
       return false;
     }
 
@@ -433,37 +446,37 @@ bool isLegalMove(move_t move, board_t B) {
 
     // if pawn is not in starting position, it can only move one space
     if (y1 != 6 && rowDiff >= 2) {
-      printf("Pawns can only move 1 space after their first move.\n");
+      if (!AI) printf("Pawns can only move 1 space after their first move.\n");
       return false;
     }
 
     // if pawn is in starting position, it can move up to 2 moves
     else if (y1 == 6 && rowDiff > 2) {
-      printf("Pawns can only move 2 spaces on first move.\n");
+      if (!AI) printf("Pawns can only move 2 spaces on first move.\n");
       return false;
     }
 
     // pawns can only move forward, not sideways or backward
     else if (rowDiff <= 0) {
-      printf("Pawns can only move forward.\n");
+      if (!AI) printf("Pawns can only move forward.\n");
       return false;
     }
 
     // at max pawns can move one column over at a time
     else if (abs(colDiff) > 1) {
-      printf("Pawns can't move that much horizontally.\n");
+      if (!AI) printf("Pawns can't move that much horizontally.\n");
       return false;
     }
 
     // pawns can only move diagonally if there is an enemy piece there
     else if (abs(colDiff) == 1 and rowDiff == 1 && gameBoard[endIndex].piece == NULL) {
-      printf("Pawns can only move diagonally if there is an enemy piece there.\n");
+      if (!AI) printf("Pawns can only move diagonally if there is an enemy piece there.\n");
       return false;
     }
 
     // pawns can't move directly forward into an enemy piece
     else if (rowDiff == 1 && colDiff == 0 && gameBoard[endIndex].piece != NULL) {
-      printf("Pawns can't move directly forward into an enemy piece.\n");
+      if (!AI) printf("Pawns can't move directly forward into an enemy piece.\n");
       return false;
     }
 
@@ -485,7 +498,7 @@ bool isLegalMove(move_t move, board_t B) {
   else if (gameBoard[startIndex].piece->type == KING) {
     // kings can only move one space
     if (abs(rowDiff) > 1 || abs(colDiff) > 1) {
-      printf("Kings an only move one space in any direction.\n");
+      if (!AI) printf("Kings an only move one space in any direction.\n");
       return false;
     }
 
@@ -508,7 +521,7 @@ bool isLegalMove(move_t move, board_t B) {
 
   else if (gameBoard[startIndex].piece->type == QUEEN) {
     if (abs(rowDiff) != abs(colDiff) && rowDiff != 0 && colDiff != 0) {
-      printf("Queens can only move diagonally or straight.\n");
+      if (!AI) printf("Queens can only move diagonally or straight.\n");
       return false;
     }
     // TIME TO CHECK ALL DA POSSIBLE BLOCKING PIECES
@@ -517,7 +530,7 @@ bool isLegalMove(move_t move, board_t B) {
         for (int j = x1-1; j > x2; j--) {
           int tempIndex = getIndex(j, i);
           if (gameBoard[tempIndex].piece != NULL) {
-            printf("There is a piece blocking your move.\n");
+            if (!AI) printf("There is a piece blocking your move.\n");
             return false;
           }
         }
@@ -528,7 +541,7 @@ bool isLegalMove(move_t move, board_t B) {
         for (int j = x1+1; j < x2; j++) {
           int tempIndex = getIndex(j, i);
           if (gameBoard[tempIndex].piece != NULL) {
-            printf("There is a piece blocking your move.\n");
+            if (!AI) printf("There is a piece blocking your move.\n");
             return false;
           }
         }
@@ -539,7 +552,7 @@ bool isLegalMove(move_t move, board_t B) {
         for (int j = x1+1; j < x2; j++) {
           int tempIndex = getIndex(j, i);
           if (gameBoard[tempIndex].piece != NULL) {
-            printf("There is a piece blocking your move.\n");
+            if (!AI) printf("There is a piece blocking your move.\n");
             return false;
           }
         }
@@ -550,7 +563,7 @@ bool isLegalMove(move_t move, board_t B) {
         for (int j = x1-1; j > x2; j--) {
           int tempIndex = getIndex(j, i);
           if (gameBoard[tempIndex].piece != NULL) {
-            printf("There is a piece blocking your move.\n");
+            if (!AI) printf("There is a piece blocking your move.\n");
             return false;
           }
         }
@@ -560,7 +573,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = x1-1; i > x2; i--) {
         int tempIndex = getIndex(i, y1);
         if (gameBoard[tempIndex].piece != NULL) {
-          printf("There is a piece blocking your move.\n");
+          if (!AI) printf("There is a piece blocking your move.\n");
           return false;
         }
       }
@@ -569,7 +582,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = x1+1; i < x2; i++) {
         int tempIndex = getIndex(i, y1);
         if (gameBoard[tempIndex].piece != NULL) {
-          printf("There is a piece blocking your move.\n");
+          if (!AI) printf("There is a piece blocking your move.\n");
           return false;
         }
       }
@@ -578,7 +591,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = y1-1; i > y2; i--) {
         int tempIndex = getIndex(x1, i);
         if (gameBoard[tempIndex].piece != NULL) {
-          printf("There is a piece blocking your move.\n");
+          if (!AI) printf("There is a piece blocking your move.\n");
           return false;
         }
       }
@@ -587,7 +600,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = y1+1; i < y2; i++) {
         int tempIndex = getIndex(x1, i);
         if (gameBoard[tempIndex].piece != NULL) {
-          printf("There is a piece blocking your move.\n");
+          if (!AI) printf("There is a piece blocking your move.\n");
           return false;
         }
       }
@@ -612,7 +625,7 @@ bool isLegalMove(move_t move, board_t B) {
 
   else if (gameBoard[startIndex].piece->type == KNIGHT) {
     if (abs(rowDiff) * abs(colDiff) != 2) {
-      printf("Illegal move for a knight.\n");
+      if (!AI) printf("Illegal move for a knight.\n");
       return false;
     }
 
@@ -635,7 +648,7 @@ bool isLegalMove(move_t move, board_t B) {
 
   else if (gameBoard[startIndex].piece->type == BISHOP) {
     if (abs(rowDiff) != abs(colDiff)) {
-      printf("Bishops can only move diagonally.\n");
+      if (!AI) printf("Bishops can only move diagonally.\n");
       return false;
     }
     // check all the blocking pieces
@@ -644,7 +657,7 @@ bool isLegalMove(move_t move, board_t B) {
         for (int j = x1-1; j > x2; j--) {
           int tempIndex = getIndex(j, i);
           if (gameBoard[tempIndex].piece != NULL) {
-            printf("There is a piece blocking your move.\n");
+            if (!AI) printf("There is a piece blocking your move.\n");
             return false;
           }
         }
@@ -655,7 +668,7 @@ bool isLegalMove(move_t move, board_t B) {
         for (int j = x1+1; j < x2; j++) {
           int tempIndex = getIndex(j, i);
           if (gameBoard[tempIndex].piece != NULL) {
-            printf("There is a piece blocking your move.\n");
+            if (!AI) printf("There is a piece blocking your move.\n");
             return false;
           }
         }
@@ -666,7 +679,7 @@ bool isLegalMove(move_t move, board_t B) {
         for (int j = x1+1; j < x2; j++) {
           int tempIndex = getIndex(j, i);
           if (gameBoard[tempIndex].piece != NULL) {
-            printf("There is a piece blocking your move.\n");
+            if (!AI) printf("There is a piece blocking your move.\n");
             return false;
           }
         }
@@ -677,7 +690,7 @@ bool isLegalMove(move_t move, board_t B) {
         for (int j = x1-1; j > x2; j--) {
           int tempIndex = getIndex(j, i);
           if (gameBoard[tempIndex].piece != NULL) {
-            printf("There is a piece blocking your move.\n");
+            if (!AI) printf("There is a piece blocking your move.\n");
             return false;
           }
         }
@@ -703,7 +716,7 @@ bool isLegalMove(move_t move, board_t B) {
 
   else if (gameBoard[startIndex].piece->type == ROOK) {
     if (rowDiff != 0 && colDiff != 0) {
-      printf("Rooks can only move directly forward or sideways.\n");
+      if (!AI) printf("Rooks can only move directly forward or sideways.\n");
       return false;
     }
     // check for blocking pieces
@@ -711,7 +724,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = x1-1; i > x2; i--) {
         int tempIndex = getIndex(i, y1);
         if (gameBoard[tempIndex].piece != NULL) {
-          printf("There is a piece blocking your move.\n");
+          if (!AI) printf("There is a piece blocking your move.\n");
           return false;
         }
       }
@@ -720,7 +733,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = x1+1; i < x2; i++) {
         int tempIndex = getIndex(i, y1);
         if (gameBoard[tempIndex].piece != NULL) {
-          printf("There is a piece blocking your move.\n");
+          if (!AI) printf("There is a piece blocking your move.\n");
           return false;
         }
       }
@@ -729,7 +742,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = y1-1; i > y2; i--) {
         int tempIndex = getIndex(x1, i);
         if (gameBoard[tempIndex].piece != NULL) {
-          printf("There is a piece blocking your move.\n");
+          if (!AI) printf("There is a piece blocking your move.\n");
           return false;
         }
       }
@@ -738,7 +751,7 @@ bool isLegalMove(move_t move, board_t B) {
       for (int i = y1+1; i < y2; i++) {
         int tempIndex = getIndex(x1, i);
         if (gameBoard[tempIndex].piece != NULL) {
-          printf("There is a piece blocking your move.\n");
+          if (!AI) printf("There is a piece blocking your move.\n");
           return false;
         }
       }
@@ -767,8 +780,8 @@ bool isLegalMove(move_t move, board_t B) {
 move_t parseMove (string move) {
   int x1, y1, x2, y2;
 
-  y1 = (int)move[1];
-  y2 = (int)move[7];
+  y1 = (int)move[1] - '0';
+  y2 = (int)move[5] - '0';
 
   switch (move[0]) {
     case 'a': x1 = 0;
@@ -789,7 +802,7 @@ move_t parseMove (string move) {
               break;
   }
 
-  switch (move[6]) {
+  switch (move[4]) {
     case 'a': x2 = 0;
               break;
     case 'b': x2 = 1;
@@ -838,36 +851,49 @@ int main() {
   char move[10];
   while(1) {
     move_t m;
-    //cout << "Please enter a move: ";
+    //std::cout << "Please enter a move: ";
     if (B->curPlayer == BLACK) {
-      printf("Please enter a move: \n");
-      //cin >> move;
-      scanf("%s", move);
+      AI = 0;
+      //printf("Please enter a move: ");
+      move[0] = '\0';
+      std::cout << "Please enter a move: ";
+      std::cin >> move;
+      // scanf("%s", move);
       // read input from cmdline (e.g. LK e 5, LB a 6, P1 b 3, etc...)
 
       while(!isValidMoveFormat(move)) {
-        printf("Invalid move format!\nPlease enter a move: \n");
+        //printf("Invalid move format!\nPlease enter a move SSSSS: ");
+        move[0] = '\0';
+        std::cout << "Please enter a move: ";
         // get move
-        scanf("%s", move);
+        std::cin >> move;
       }
 
       m = parseMove(move);
 
       while (!isLegalMove(m, B)) {
-        printf("Please enter a legal move.\n");
-        printf("Please enter a move: \n");
-        scanf("%s", move);
+        //printf("Please enter a legal move. \n");
+        //printf("Please enter a movAAAAASFSFSFe: ");
+        move[0] = '\0';
+        std::cout << "Please enter a move: ";
+        //scanf("%s", move);
+        std::cin >> move;
         while(!isValidMoveFormat(move)) {
-          printf("Invalid move format!\n");
+          //printf("Invalid move format!\n");
           // get move
-          printf("Please enter a move: \n");
-          scanf("%s", move);
+          //printf("Please enter a moHHHHHve: ");
+          move[0] = '\0';
+          std::cout << "Please enter a move: ";
+          // scanf("%s", move);
+          std::cin >> move;
         }
 
         m = parseMove(move);
       }
     } else {
       // AI LES GOOO
+      printf("AIIIIII\n");
+      AI = 1;
       m = nextMove(B, MAXI);
       printf("AI decided move col1 = %d row1 = %d: col2 = %d row2 = %d\n",
           m->x1, m->y1, m->x2, m->y2);
