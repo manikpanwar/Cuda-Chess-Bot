@@ -4,7 +4,7 @@
 #define POSINF INT_MAX     // may need to include <limits.h>
 #define NEGINF INT_MIN
 
-#define MAXDEPTH 6
+#define MAXDEPTH 10
 
 #define MAXI 1
 #define MINI 2

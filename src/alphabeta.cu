@@ -13,7 +13,7 @@ minimaxResult_t maxi(int curDepth, int maxDepth,
                     int alpha, int beta, board_t board);
 
 
-void generatePossibleMovesKing(board_t board, int x, int y,
+__device__ __inline__ void generatePossibleMovesKing(board_t board, int x, int y,
     std::vector<move_t>* possibleMoves) {
   // king can move in any direction
   // x == x1, y == y1
@@ -110,7 +110,7 @@ void generatePossibleMovesKing(board_t board, int x, int y,
 }
 
 
-void generatePossibleMovesQueen(board_t board, int x, int y,
+__device__ __inline__ void generatePossibleMovesQueen(board_t board, int x, int y,
     std::vector<move_t>* possibleMoves) {
 
   for (int row = 0; row < BOARD_HEIGHT; row++) {
@@ -130,7 +130,7 @@ void generatePossibleMovesQueen(board_t board, int x, int y,
 
 }
 
-void generatePossibleMovesBishop(board_t board, int x, int y,
+__device__ __inline__ void generatePossibleMovesBishop(board_t board, int x, int y,
     std::vector<move_t>* possibleMoves) {
 
   for (int row = 0; row < BOARD_HEIGHT; row++) {
@@ -152,7 +152,7 @@ void generatePossibleMovesBishop(board_t board, int x, int y,
 
 }
 
-void generatePossibleMovesKnight(board_t board, int x, int y,
+__device__ __inline__ void generatePossibleMovesKnight(board_t board, int x, int y,
     std::vector<move_t>* possibleMoves) {
   // x == x1, y == y1
   move_t m1, m2, m3, m4, m5, m6, m7, m8;
@@ -256,7 +256,7 @@ void generatePossibleMovesKnight(board_t board, int x, int y,
 
 }
 
-void generatePossibleMovesRook(board_t board, int x, int y,
+__device__ __inline__ void generatePossibleMovesRook(board_t board, int x, int y,
     std::vector<move_t>* possibleMoves) {
 
   for (int row = 0; row < BOARD_HEIGHT; row++) {
@@ -287,7 +287,7 @@ void generatePossibleMovesRook(board_t board, int x, int y,
   }
 }
 
-void generatePossibleMovesPawn(board_t board, int x, int y,
+__device__ __inline__ void generatePossibleMovesPawn(board_t board, int x, int y,
     std::vector<move_t>* possibleMoves, int curPlayer) {
   int mf = (curPlayer == WHITE) ? 1 : -1;  // multFactor
   move_t m1, m2, m3, m4;
@@ -339,12 +339,12 @@ void generatePossibleMovesPawn(board_t board, int x, int y,
   }
 }
 
-std::vector<move_t> generatePossibleMoves(board_t board) {
+__device__ __inline__ void generatePossibleMoves(board_t board, std::vector<move_t>* possibleMoves) {
   // given current state of board, generate all possible moves
-  std::vector<move_t> possibleMoves;
+  // std::vector<move_t> possibleMoves;
 
   if (board->gameOver) {
-    return possibleMoves;
+    return *possibleMoves;
   }
 
   for (int row = 0; row < BOARD_HEIGHT; row++) {
@@ -355,52 +355,48 @@ std::vector<move_t> generatePossibleMoves(board_t board) {
       int curPlayer = board->curPlayer;
       if (piece == NULL || (playerForPiece != curPlayer)) {
         // nothing at this position on the board
-        // printf("NULL curPlayer  = %d playerForPiece = %d row = %d col = %d\n", curPlayer, playerForPiece, row, col);
-        // or current position is for a player who doesn't have a turn right now
         continue;
       }
-      // printf("curPlayer  = %d row = %d col = %d type = %d", curPlayer, row, col, piece->type);
 
       int x = piece->x;
       int y = piece->y;
 
       switch (piece->type) {
         case KING: {
-                     generatePossibleMovesKing(board, x, y, &possibleMoves);
+                     generatePossibleMovesKing(board, x, y, possibleMoves);
                      break;
                    }
         case QUEEN: {
-                      generatePossibleMovesQueen(board, x, y, &possibleMoves);
+                      generatePossibleMovesQueen(board, x, y, possibleMoves);
                       break;
                     }
         case BISHOP: {
-                       generatePossibleMovesBishop(board, x, y, &possibleMoves);
+                       generatePossibleMovesBishop(board, x, y, possibleMoves);
                        break;
                      }
         case KNIGHT: {
-                       generatePossibleMovesKnight(board, x, y, &possibleMoves);
+                       generatePossibleMovesKnight(board, x, y, possibleMoves);
                        break;
                      }
         case ROOK: {
-                     generatePossibleMovesRook(board, x, y, &possibleMoves);
+                     generatePossibleMovesRook(board, x, y, possibleMoves);
                      break;
                    }
         case PAWN: {
                      generatePossibleMovesPawn(board, x, y,
-                         &possibleMoves, curPlayer);
+                         possibleMoves, curPlayer);
                      break;
                    }
       }
     }
   }
-  // printf("Done making moves: Made %zu moves\n", possibleMoves.size());
-  return possibleMoves;
+  return (*possibleMoves);
 
 }
 
 
 // heuristic taken from https://chessprogramming.wikispaces.com/Evaluation
-int score(board_t board) {
+__device__ __inline__ int score(board_t board) {
   // Minimax usually associates the white side with the max-player and black
   // with the min-player and always evaluates from the white point of view
 
@@ -445,125 +441,14 @@ int score(board_t board) {
 }
 
 
-minimaxResult_t maxi(int curDepth, int maxDepth, int alpha, int beta, board_t board) {
+// has to be void so can't return minimaxResult_t
+__global__ void minimax(int maxDepth, board_t board) {
   // ENSURES: board struct remains the same as it was passed in when the function completes
-  int curScore = score(board);
+  int curDepth = 0;
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  while (curDepth != maxDepth) {
 
-  if (maxDepth == curDepth) {
-    minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
-    res->bestRes = curScore;
-    res->move = NULL;
-    return res;
   }
-
-  std::vector<move_t> possibleMoves = generatePossibleMoves(board);
-
-  move_t bestMove = NULL;
-
-  for (std::vector<move_t>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); it++) {
-    move_t curMove = *it;
-    int x1 = curMove->x1;
-    int y1 = curMove->y1;
-    board_piece startPiece = board->gameBoard[getIndex(x1, y1)];
-    int x2 = curMove->x2;
-    int y2 = curMove->y2;
-    board_piece endPiece = board->gameBoard[getIndex(x2, y2)];
-
-    // we know curMove is valid
-    applyMove(curMove, board);
-    // applying move modifies the board
-
-    minimaxResult_t curRes = mini(curDepth + 1, maxDepth, alpha, beta, board);
-    int newBeta = curRes->bestRes;
-
-    // now undo this move
-    undoMove(x1, y1, startPiece, x2, y2, endPiece, board);
-
-    // calculate new intervals | prune if applicable
-    if (alpha < newBeta && newBeta < beta) {
-      // INTERIOR
-      alpha = newBeta;
-      bestMove = curMove;
-    } else if (alpha < newBeta) {
-      // ABOVE
-      // assert (newBeta >= beta)
-      // mini can already get beta so would never move us into this state
-      // where we can get higher than beta so prune
-
-      free(curRes);
-      minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
-      res->bestRes = newBeta;  // TODO: Check value returned here
-      res->move = NULL;
-      return res;
-    }
-    // last case is BELOW so keep alpha as is
-    free(curRes);
-  }
-  minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
-  res->bestRes = alpha;
-  res->move = bestMove;
-  return res;
-}
-
-
-minimaxResult_t mini(int curDepth, int maxDepth, int alpha, int beta, board_t board) {
-  // ENSURES: board struct remains the same as it was passed in when the function completes
-  int curScore = score(board);
-
-  if (maxDepth == curDepth) {
-    minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
-    res->bestRes = curScore;
-    res->move = NULL;
-    return res;
-  }
-
-  std::vector<move_t> possibleMoves = generatePossibleMoves(board);
-
-  move_t bestMove = NULL;
-
-  for (std::vector<move_t>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); it++) {
-    move_t curMove = *it;
-    int x1 = curMove->x1;
-    int y1 = curMove->y1;
-    board_piece startPiece = board->gameBoard[getIndex(x1, y1)];
-    int x2 = curMove->x2;
-    int y2 = curMove->y2;
-    board_piece endPiece = board->gameBoard[getIndex(x2, y2)];
-
-    // we know curMove is valid
-    applyMove(curMove, board);
-    // applying move modifies the board
-
-    minimaxResult_t curRes = maxi(curDepth + 1, maxDepth, alpha, beta, board);
-    int newAlpha = curRes->bestRes;
-
-    // now undo this move
-    undoMove(x1, y1, startPiece, x2, y2, endPiece, board);
-
-    // calculate new intervals | prune if applicable
-    if (alpha < newAlpha && newAlpha < beta) {
-      // INTERIOR
-      beta = newAlpha;
-      bestMove = curMove;
-    } else if (alpha < newAlpha) {
-      // ABOVE so do nothing and keep iterating
-    } else {
-      // BELOW
-      // maxi can already get alpha so no way it would get mini in a position to get a newAlpha
-      // less than current alpha so prune
-
-      free(curRes);
-      minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
-      res->bestRes = newAlpha;  // TODO: Check value returned here
-      res->move = NULL;
-      return res;
-    }
-    free(curRes);
-  }
-  minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
-  res->bestRes = beta;
-  res->move = bestMove;
-  return res;
 }
 
 move_t nextMove(board_t board, int curPlayer) {
