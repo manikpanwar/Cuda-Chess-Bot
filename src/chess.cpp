@@ -25,20 +25,20 @@ void initPlayers(board_t B) {
 
   board_piece_t game_board = B->gameBoard;
   w->king = (pos_t)malloc(sizeof(struct pos));
-  w->king->x = 3;     // x is columns, y is rows
+  w->king->x = 4;     // x is columns, y is rows
   w->king->y = 0;
   w->king->active = true;
   w->king->type = KING;
-  game_board[getIndex(3, 0)].piece = w->king;
-  game_board[getIndex(3, 0)].player = WHITE;
+  game_board[getIndex(4, 0)].piece = w->king;
+  game_board[getIndex(4, 0)].player = WHITE;
 
   w->queen = (pos_t)malloc(sizeof(struct pos));
-  w->queen->x = 4;
+  w->queen->x = 3;
   w->queen->y = 0;
   w->queen->active = true;
   w->queen->type = QUEEN;
-  game_board[getIndex(4, 0)].piece = w->queen;
-  game_board[getIndex(4, 0)].player = WHITE;
+  game_board[getIndex(3, 0)].piece = w->queen;
+  game_board[getIndex(3, 0)].player = WHITE;
 
   w->lbishop = (pos_t)malloc(sizeof(struct pos));
   w->lbishop->x = 2;
@@ -101,20 +101,20 @@ void initPlayers(board_t B) {
   }
 
   b->king = (pos_t)malloc(sizeof(struct pos));
-  b->king->x = 3;
+  b->king->x = 4;
   b->king->y = 7;
   b->king->active = true;
   b->king->type = KING;
-  game_board[getIndex(3, 7)].piece = b->king;
-  game_board[getIndex(3, 7)].player = BLACK;
+  game_board[getIndex(4, 7)].piece = b->king;
+  game_board[getIndex(4, 7)].player = BLACK;
 
   b->queen = (pos_t)malloc(sizeof(struct pos));
-  b->queen->x = 4;
+  b->queen->x = 3;
   b->queen->y = 7;
   b->queen->active = true;
   b->queen->type = QUEEN;
-  game_board[getIndex(4, 7)].piece = b->queen;
-  game_board[getIndex(4, 7)].player = BLACK;
+  game_board[getIndex(3, 7)].piece = b->queen;
+  game_board[getIndex(3, 7)].player = BLACK;
 
   b->lbishop = (pos_t)malloc(sizeof(struct pos));
   b->lbishop->x = 2;
@@ -181,6 +181,7 @@ void initPlayers(board_t B) {
 
 void initGame(board_t B) {
   B->curPlayer = WHITE;
+  B->gameOver = false;
   initPlayers(B); // inits players and game board
 }
 
@@ -222,51 +223,54 @@ bool isValidMoveFormat(char move[]) {
 
 void removeTakenPiece(player_t p, int startIndex, int endIndex, board_piece_t gameBoard, int curPlayer) {
   switch (gameBoard[endIndex].piece->type) {
-    case PAWN: for (int i = 0; i < 8; i++) {
-                 if (p->pawns[i].active) {
-                   p->pawns[i].active = false;
-                   break;
-                 }
-               }
-               break;
-    case BISHOP: if (p->lbishop->active) {
-                   p->lbishop->active = false;
-                 }
-                 else {
-                   p->rbishop->active = false;
-                 }
-                 break;
-    case KNIGHT: if (p->lknight->active) {
-                   p->lknight->active = false;
-                 }
-                 else {
-                   p->rknight->active = false;
-                 }
-                 break;
-    case ROOK: if (p->lrook->active) {
-                 p->lrook->active = false;
-               }
-               else {
-                 p->rrook->active = false;
-               }
-               break;
-    case QUEEN: p->queen->active = false;
-                break;
-    case KING: p->king->active = false;
-               break;
+    case PAWN: {for (int i = 0; i < 8; i++) {
+                     if (p->pawns[i].active) {
+                       p->pawns[i].active = false;
+                       break;
+                     }
+                   }
+                   break;}
+    case BISHOP: {if (p->lbishop->active) {
+                       p->lbishop->active = false;
+                     }
+                     else {
+                       p->rbishop->active = false;
+                     }
+                     break;}
+    case KNIGHT: {if (p->lknight->active) {
+                       p->lknight->active = false;
+                     }
+                     else {
+                       p->rknight->active = false;
+                     }
+                     break;}
+    case ROOK: {if (p->lrook->active) {
+                     p->lrook->active = false;
+                   }
+                   else {
+                     p->rrook->active = false;
+                   }
+                   break;}
+    case QUEEN: {p->queen->active = false;
+                    break;}
+    case KING: {p->king->active = false;
+                   break;}
   }
-  gameBoard[endIndex].piece->type = gameBoard[startIndex].piece->type;
-  gameBoard[endIndex].player = curPlayer;
+  // gameBoard[endIndex].piece->type = gameBoard[startIndex].piece->type;
+  // gameBoard[endIndex].player = curPlayer;
+  gameBoard[endIndex] = gameBoard[startIndex];
   gameBoard[startIndex].piece = NULL;
 }
 
 void movePiece(board_piece_t gameBoard, int startIndex, int endIndex, int curPlayer) {
-  gameBoard[endIndex].piece = gameBoard[startIndex].piece;
-  gameBoard[endIndex].player = curPlayer;
+  // gameBoard[endIndex].piece = gameBoard[startIndex].piece;
+  // gameBoard[endIndex].player = curPlayer;
+  gameBoard[endIndex] = gameBoard[startIndex];
   gameBoard[startIndex].piece = NULL;
 }
 
-void undoMove(int x1, int y1, board_piece startPiece, int x2, int y2, board_piece endPiece, board_t B) {
+void undoMove(int x1, int y1, board_piece startPiece, int x2, int y2,
+ board_piece endPiece, board_t B, int curPlayer) {
   int startIndex = getIndex(x1, y1);
   int endIndex = getIndex(x2, y2);
 
@@ -275,7 +279,7 @@ void undoMove(int x1, int y1, board_piece startPiece, int x2, int y2, board_piec
   gameBoard[startIndex] = startPiece;
   gameBoard[endIndex] = endPiece;
 
-  int curPlayer = B->curPlayer;
+  // int curPlayer = B->curPlayer;
   player_t p;
   if (curPlayer == WHITE) {
     p = B->black;
@@ -287,50 +291,50 @@ void undoMove(int x1, int y1, board_piece startPiece, int x2, int y2, board_piec
   // logic for bringing a piece back from the dead if it was taken
   if (gameBoard[endIndex].piece != NULL) {
     switch (gameBoard[endIndex].piece->type) {
-      case PAWN: for (int i = 0; i < 8; i++) {
-                   if (!p->pawns[i].active) {
-                     p->pawns[i].active = true;
-                     break;
-                   }
-                 }
-                 break;
-      case BISHOP: if (!p->lbishop->active) {
-                     p->lbishop->active = true;
-                   }
-                   else {
-                     p->rbishop->active = true;
-                   }
-                   break;
-      case KNIGHT: if (!p->lknight->active) {
-                     p->lknight->active = true;
-                   }
-                   else {
-                     p->rknight->active = true;
-                   }
-                   break;
-      case ROOK: if (!p->lrook->active) {
-                   p->lrook->active = true;
-                 }
-                 else {
-                   p->rrook->active = true;
-                 }
-                 break;
-      case QUEEN: p->queen->active = true;
-                  break;
-      case KING: p->king->active = true;
-                 break;
+      case PAWN: {for (int i = 0; i < 8; i++) {
+                         if (!p->pawns[i].active) {
+                           p->pawns[i].active = true;
+                           break;
+                         }
+                       }
+                       break;}
+      case BISHOP: {if (!p->lbishop->active) {
+                           p->lbishop->active = true;
+                         }
+                         else {
+                           p->rbishop->active = true;
+                         }
+                         break;}
+      case KNIGHT: {if (!p->lknight->active) {
+                           p->lknight->active = true;
+                         }
+                         else {
+                           p->rknight->active = true;
+                         }
+                         break;}
+      case ROOK: {if (!p->lrook->active) {
+                               p->lrook->active = true;
+                             }
+                             else {
+                               p->rrook->active = true;
+                             }
+                             break;}
+      case QUEEN: {p->queen->active = true;
+                              break;}
+      case KING: {p->king->active = true;
+                       break;}
     }
   }
 }
 
-void applyMove(move_t move, board_t B) {
+void applyMove(move_t move, board_t B, int curPlayer) {
   int x1 = move->x1;
   int x2 = move->x2;
   int y1 = move->y1;
   int y2 = move->y2;
 
   board_piece_t gameBoard = B->gameBoard;
-  int curPlayer = B->curPlayer;
+  // int curPlayer = B->curPlayer;
   int startIndex = getIndex(x1, y1);
   int endIndex = getIndex(x2, y2);
 
@@ -348,7 +352,7 @@ void applyMove(move_t move, board_t B) {
 }
 
 // check if the move is legal, if it is then complete the move
-bool isLegalMove(move_t move, board_t B) {
+bool isLegalMove(move_t move, board_t B, int curPlayer) {
 
   int x1 = move->x1;
   int x2 = move->x2;
@@ -363,7 +367,7 @@ bool isLegalMove(move_t move, board_t B) {
   }
 
   board_piece_t gameBoard = B->gameBoard;
-  int curPlayer = B->curPlayer;
+  // int curPlayer = B->curPlayer;
   int startIndex = getIndex(x1, y1);
   int endIndex = getIndex(x2, y2);
 
@@ -526,46 +530,46 @@ bool isLegalMove(move_t move, board_t B) {
     }
     // TIME TO CHECK ALL DA POSSIBLE BLOCKING PIECES
     if (rowDiff > 0 && colDiff > 0) {
+      int j = x1;
       for (int i = y1-1; i > y2; i--) {
-        for (int j = x1-1; j > x2; j--) {
-          int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex].piece != NULL) {
-            if (!AI) printf("There is a piece blocking your move.\n");
-            return false;
-          }
+        j--;
+        int tempIndex = getIndex(j, i);
+        if (gameBoard[tempIndex].piece != NULL) {
+          if (!AI) printf("There is a piece blocking your move.\n");
+          return false;
         }
       }
     }
     else if (rowDiff < 0 && colDiff < 0) {
+      int j = x1;
       for (int i = y1+1; i < y2; i++) {
-        for (int j = x1+1; j < x2; j++) {
-          int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex].piece != NULL) {
-            if (!AI) printf("There is a piece blocking your move.\n");
-            return false;
-          }
+        j++;
+        int tempIndex = getIndex(j, i);
+        if (gameBoard[tempIndex].piece != NULL) {
+          if (!AI) printf("There is a piece blocking your move.\n");
+          return false;
         }
       }
     }
     else if (rowDiff > 0 && colDiff < 0) {
+      int j = x1;
       for (int i = y1-1; i > y2; i--) {
-        for (int j = x1+1; j < x2; j++) {
-          int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex].piece != NULL) {
-            if (!AI) printf("There is a piece blocking your move.\n");
-            return false;
-          }
+        j++;
+        int tempIndex = getIndex(j, i);
+        if (gameBoard[tempIndex].piece != NULL) {
+          if (!AI) printf("There is a piece blocking your move.\n");
+          return false;
         }
       }
     }
     else if (rowDiff < 0 && colDiff > 0) {
+      int j = x1;
       for (int i = y1+1; i < y2; i++) {
-        for (int j = x1-1; j > x2; j--) {
-          int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex].piece != NULL) {
-            if (!AI) printf("There is a piece blocking your move.\n");
-            return false;
-          }
+        j--;
+        int tempIndex = getIndex(j, i);
+        if (gameBoard[tempIndex].piece != NULL) {
+          if (!AI) printf("There is a piece blocking your move.\n");
+          return false;
         }
       }
     }
@@ -653,46 +657,46 @@ bool isLegalMove(move_t move, board_t B) {
     }
     // check all the blocking pieces
     else if (rowDiff > 0 && colDiff > 0) {
+      int j = x1;
       for (int i = y1-1; i > y2; i--) {
-        for (int j = x1-1; j > x2; j--) {
-          int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex].piece != NULL) {
-            if (!AI) printf("There is a piece blocking your move.\n");
-            return false;
-          }
+        j--;
+        int tempIndex = getIndex(j, i);
+        if (gameBoard[tempIndex].piece != NULL) {
+          if (!AI) printf("There is a piece blocking your move.\n");
+          return false;
         }
       }
     }
     else if (rowDiff < 0 && colDiff < 0) {
+      int j = x1;
       for (int i = y1+1; i < y2; i++) {
-        for (int j = x1+1; j < x2; j++) {
-          int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex].piece != NULL) {
-            if (!AI) printf("There is a piece blocking your move.\n");
-            return false;
-          }
+        j++;
+        int tempIndex = getIndex(j, i);
+        if (gameBoard[tempIndex].piece != NULL) {
+          if (!AI) printf("There is a piece blocking your move.\n");
+          return false;
         }
       }
     }
     else if (rowDiff > 0 && colDiff < 0) {
+      int j = x1;
       for (int i = y1-1; i > y2; i--) {
-        for (int j = x1+1; j < x2; j++) {
-          int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex].piece != NULL) {
-            if (!AI) printf("There is a piece blocking your move.\n");
-            return false;
-          }
+        j++;
+        int tempIndex = getIndex(j, i);
+        if (gameBoard[tempIndex].piece != NULL) {
+          if (!AI) printf("There is a piece blocking your move.\n");
+          return false;
         }
       }
     }
     else if (rowDiff < 0 && colDiff > 0) {
+      int j = x1;
       for (int i = y1+1; i < y2; i++) {
-        for (int j = x1-1; j > x2; j--) {
-          int tempIndex = getIndex(j, i);
-          if (gameBoard[tempIndex].piece != NULL) {
-            if (!AI) printf("There is a piece blocking your move.\n");
-            return false;
-          }
+        j--;
+        int tempIndex = getIndex(j, i);
+        if (gameBoard[tempIndex].piece != NULL) {
+          if (!AI) printf("There is a piece blocking your move.\n");
+          return false;
         }
       }
     }
@@ -849,20 +853,24 @@ int main() {
   B->gameBoard = (board_piece_t)calloc(BOARD_WIDTH * BOARD_HEIGHT, sizeof(struct board_piece));
   initGame(B);
   char move[10];
+  int numMoves = 0;
   while(1) {
+    numMoves++;
     move_t m;
-    //std::cout << "Please enter a move: ";
     if (B->curPlayer == BLACK) {
+      // AI = 1;
+      // m = nextMove(B, MAXI, BLACK);
+      // int t = B->gameBoard[getIndex(m->x1, m->y1)].piece->type;
+      // printf("AI (B) decided move col1 = %d row1 = %d: col2 = %d row2 = %d type = %d\n",
+      //     m->x1, m->y1, m->x2, m->y2, t);
+      
       AI = 0;
-      //printf("Please enter a move: ");
       move[0] = '\0';
       std::cout << "Please enter a move: ";
       std::cin >> move;
-      // scanf("%s", move);
       // read input from cmdline (e.g. LK e 5, LB a 6, P1 b 3, etc...)
 
       while(!isValidMoveFormat(move)) {
-        //printf("Invalid move format!\nPlease enter a move SSSSS: ");
         move[0] = '\0';
         std::cout << "Please enter a move: ";
         // get move
@@ -871,20 +879,14 @@ int main() {
 
       m = parseMove(move);
 
-      while (!isLegalMove(m, B)) {
-        //printf("Please enter a legal move. \n");
-        //printf("Please enter a movAAAAASFSFSFe: ");
+      while (!isLegalMove(m, B, BLACK)) {
         move[0] = '\0';
         std::cout << "Please enter a move: ";
-        //scanf("%s", move);
         std::cin >> move;
         while(!isValidMoveFormat(move)) {
-          //printf("Invalid move format!\n");
           // get move
-          //printf("Please enter a moHHHHHve: ");
           move[0] = '\0';
           std::cout << "Please enter a move: ";
-          // scanf("%s", move);
           std::cin >> move;
         }
 
@@ -892,26 +894,32 @@ int main() {
       }
     } else {
       // AI LES GOOO
-      printf("AIIIIII\n");
       AI = 1;
-      m = nextMove(B, MAXI);
-      printf("AI decided move col1 = %d row1 = %d: col2 = %d row2 = %d\n",
-          m->x1, m->y1, m->x2, m->y2);
+      m = nextMove(B, MAXI, WHITE);
+      int t = B->gameBoard[getIndex(m->x1, m->y1)].piece->type;
+      printf("AI (W) decided move col1 = %d row1 = %d: col2 = %d row2 = %d t = %d\n",
+          m->x1, m->y1, m->x2, m->y2, t);
     }
 
-    applyMove(m, B);
-
+    // printf("Applying move...\n");
+    
+    applyMove(m, B, B->curPlayer);
+    // printf("Applied move\n");
     // check game over
     if (gameOver(B) == WHITE) {
+      B->gameOver = true;
       printf("White wins!\n");
       break;
     }
 
     else if (gameOver(B) == BLACK) {
+      B->gameOver = true;
       printf("Black wins!\n");
       break;
     }
+    if(numMoves > 100) {return 0;}
 
     B->curPlayer = (B->curPlayer == WHITE) ? BLACK : WHITE;
   }
+  return 0;
 }

@@ -4,7 +4,7 @@
 #define POSINF INT_MAX     // may need to include <limits.h>
 #define NEGINF INT_MIN
 
-#define MAXDEPTH 100
+#define MAXDEPTH 6
 
 #define MAXI 1
 #define MINI 2
@@ -16,6 +16,6 @@ struct minimaxResult {
   move_t move;
 };
 
-move_t nextMove(board_t board, int curPlayer);
+move_t nextMove(board_t board, int aiType, int curPlayer);
 
 #endif

@@ -1,14 +1,4 @@
-abstract out applyMove from isLegalMove
-once that is extracted make applyMove return info on piece taken
-undoMove
-
-1. isLegalMove
-2. applyMove
-3. checkGameOver
-4. parseCommandLine to get move
-
-5. (*) undoMove -- for alpha beta might need this function?
-
+5. check draw (just kings)
 6. Implement sequentially (cpu) or in kernels first? Is the speedup measured comparing sequential on cpu vs parallel on gpu or gpu 1 thread vs gpu multiple threads?
 
 
