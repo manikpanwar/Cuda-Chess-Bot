@@ -7,6 +7,7 @@
 #include <limits.h>
 #include <pthread.h>
 #include "chess.h"
+#include "lib/CycleTimer.h"
 #include "alphabeta.h"
 
 typedef struct threadStruct* threadStruct_t;
@@ -549,6 +550,9 @@ board_t deepCopyBoard (board_t B) {
 
 void* miniThread(void* argsV) {
   // ENSURES: board struct remains the same as it was passed in when the function completes
+
+  double st,et;
+  st = CycleTimer::currentSeconds();
   threadStruct_t args = (threadStruct_t)argsV;
   int curDepth = args->curDepth;
   int maxDepth = args-> maxDepth;
@@ -557,17 +561,17 @@ void* miniThread(void* argsV) {
   board_t board = args->board;
   int curPlayer = args->curPlayer;
   minimaxResult_t res = args->res;
-  std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
   
 
   if (maxDepth == curDepth || gameOver(board) != -1) {
-    std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
-    int curScore = score(board, curPlayer, int(possibleMoves.size()), int(possibleMovesOther.size()));
+    // std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
+    int curScore = score(board, curPlayer, 0, 0);
     // minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
     res->bestRes = curScore;
     res->move = NULL;
     // return res;
   }
+  std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
 
   if (curDepth == 0) {
     std::random_shuffle(possibleMoves.begin(), possibleMoves.end());
@@ -607,6 +611,9 @@ void* miniThread(void* argsV) {
   res->bestRes = resS;
   res->move = bestMove;
   // return res;
+  et = CycleTimer::currentSeconds();
+  printf("Thread took time (without accounting pthread_create and pthread_join time) %.3f\n",
+    (et - st) * 1000.f);
   pthread_exit(NULL);
 }
 
@@ -702,16 +709,16 @@ minimaxResult_t maxi(int curDepth, int maxDepth, int alpha, int beta,
  board_t board, int curPlayer) {
 
   // ENSURES: board struct remains the same as it was passed in when the function completes
-  std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
   
   if (maxDepth == curDepth || gameOver(board) != -1) {
-    std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
-    int curScore = score(board, curPlayer, int(possibleMoves.size()), int(possibleMovesOther.size()));
+    // std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
+    int curScore = score(board, curPlayer, 0, 0);
     minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
     res->bestRes = curScore;
     res->move = NULL;
     return res;
   }
+  std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
   if (curDepth == 0) {
     std::random_shuffle(possibleMoves.begin(), possibleMoves.end());
   }
@@ -771,17 +778,17 @@ minimaxResult_t maxi(int curDepth, int maxDepth, int alpha, int beta,
 minimaxResult_t mini(int curDepth, int maxDepth, int alpha, int beta, 
   board_t board, int curPlayer) {
   // ENSURES: board struct remains the same as it was passed in when the function completes
-  std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
   
 
   if (maxDepth == curDepth || gameOver(board) != -1) {
-    std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
-    int curScore = score(board, curPlayer, int(possibleMoves.size()), int(possibleMovesOther.size()));
+    // std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
+    int curScore = score(board, curPlayer, 0, 0);
     minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
     res->bestRes = curScore;
     res->move = NULL;
     return res;
   }
+  std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
 
   if (curDepth == 0) {
     std::random_shuffle(possibleMoves.begin(), possibleMoves.end());

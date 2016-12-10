@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <ctime>
 #include <limits.h>
+#include "lib/CycleTimer.h"
 #include "chess.h"
 #include "alphabeta.h"
 
@@ -593,9 +594,16 @@ minimaxResult_t maxi(int curDepth, int maxDepth, int alpha, int beta,
     mle->player = curPlayer;
     curMovesList.push_back(mle);
     // applying move modifies the board
-
+    double startTime, endTime;
+    if (curDepth == 0) {
+      startTime = CycleTimer::currentSeconds();
+    }
     minimaxResult_t curRes = mini(curDepth + 1, maxDepth, alpha, beta, board, 
       flipPlayer(curPlayer), curMovesList);
+    if (curDepth == 0) {
+      endTime = CycleTimer::currentSeconds();
+      printf("Tree took time %.3f (ms)\n", (endTime - startTime) * 1000.f);
+    }
     resS = max(resS, curRes->bestRes);
 
     // now undo this move
