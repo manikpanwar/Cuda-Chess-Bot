@@ -1,6 +1,9 @@
 #ifndef CHESS_H
 #define CHESS_H
 
+#define OMP
+#define OMPNUMTHREADS 16
+
 #define BOARD_WIDTH 8
 #define BOARD_HEIGHT 8
 #define WHITE 0

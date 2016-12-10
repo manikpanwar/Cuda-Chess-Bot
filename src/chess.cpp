@@ -2,10 +2,13 @@
 #include <iostream>
 #include <string>
 #include <stdlib.h>
+#include <omp.h>
 #include <cstring>
 #include "chess.h"
 #include "lib/CycleTimer.h"
 #include "alphabeta.h"
+
+
 
 using std::string;
 
@@ -856,6 +859,9 @@ int main() {
   char move[10];
   int numMoves = 0;
 
+  #ifdef OMP
+    omp_set_num_threads(OMPNUMTHREADS);
+  #endif
   while(1) {
     numMoves++;
     move_t m;
@@ -897,13 +903,24 @@ int main() {
     } else {
       // AI LES GOOO
       AI = 1;
-      double startTime, endTime;
-      startTime = CycleTimer::currentSeconds();
-      m = nextMove(B, MAXI, WHITE);
-      endTime = CycleTimer::currentSeconds();
-      int t = B->gameBoard[getIndex(m->x1, m->y1)].piece->type;
-      printf("AI (W) decided move col1 = %d row1 = %d: col2 = %d row2 = %d t = %d in time = %.3f (ms)\n",
-          m->x1, m->y1, m->x2, m->y2, t, (endTime - startTime) * 1000.f);
+      int tries = 20;
+      double min = 20000000.f;
+      while (tries) {
+        double startTime, endTime;
+        startTime = CycleTimer::currentSeconds();
+        m = nextMove(B, MAXI, WHITE);
+        endTime = CycleTimer::currentSeconds();
+        printf("AI (W) decided move in time = %.3f (ms)\n",
+          (endTime - startTime) * 1000.f);
+        // int t = B->gameBoard[getIndex(m->x1, m->y1)].piece->type;
+        if ((endTime - startTime) * 1000.f < min) {
+          min = (endTime - startTime) * 1000.f;
+        }
+        tries--;
+      }
+      if (!m) printf("WHAT THE ACTUAL FUCK\n");
+      printf("AI (W) decided move col1 = %d row1 = %d: col2 = %d row2 = %d in min time = %.3f (ms)\n",
+          m->x1, m->y1, m->x2, m->y2, min);
     }
 
     // printf("Applying move...\n");
