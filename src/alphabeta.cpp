@@ -9,10 +9,12 @@
 
 
 minimaxResult_t mini(int curDepth, int maxDepth,
-                    int alpha, int beta, board_t board, int curPlayer);
+                    int alpha, int beta, board_t board, int curPlayer,
+                    std::vector<movesListElem_t> v);
 
 minimaxResult_t maxi(int curDepth, int maxDepth,
-                    int alpha, int beta, board_t board, int curPlayer);
+                    int alpha, int beta, board_t board, int curPlayer,
+                    std::vector<movesListElem_t> v);
 
 
 void generatePossibleMovesKing(board_t board, int x, int y,
@@ -470,19 +472,100 @@ int min(int a, int b) {
   return a > b ? b : a;
 }
 
+void printMove(move_t m) {
+  printf("col1: %d row1: %d col2: %d row2: %d\n", m->x1, m->y1, m->x2, m->y2);
+}
+
+int calcScore(board_t board, int curPlayer, std::vector<movesListElem_t> movesList) {
+  for (std::vector<movesListElem_t>::iterator it = movesList.begin(); it != movesList.end(); it++)
+  {
+    movesListElem_t me = *it;
+    // printf("player = %d movingpiecetype = %d",me->player, (board->gameBoard[getIndex(me->m->x1, me->m->y1)].piece->type));
+    // printMove(me->m);
+    me->startPiece = board->gameBoard[getIndex(me->m->x1, me->m->y1)];
+    me->endPiece = board->gameBoard[getIndex(me->m->x2, me->m->y2)];
+    applyMove(me->m, board, me->player);
+    // if (!board->white->king->active) {
+    //   blah = true;
+    //   printf("after this one\n");
+    // }
+  }
+  // std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
+  // std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
+  // int curScore = score(board, curPlayer, int(possibleMoves.size()), int(possibleMovesOther.size()));
+  int curScore = score(board, curPlayer, 0, 0);
+  for (std::vector<movesListElem_t>::reverse_iterator it = movesList.rbegin(); it != movesList.rend(); it++)
+  {
+    movesListElem_t me = *it;
+    // printf("player = %d ",me->player);
+    // printMove(me->m);
+    move_t m = me->m;
+    int x1 = m->x1;
+    int y1 = m->y1;
+    int x2 = m->x2;
+    int y2 = m->y2;
+    board_piece startPiece = me->startPiece;
+    board_piece endPiece = me->endPiece;
+    undoMove(x1, y1, startPiece, x2, y2, endPiece, board, me->player);
+    // if (endPiece.piece) {
+    //   printf("type = %d col = %d, row = %d \n", endPiece.piece->type, endPiece.piece->x, endPiece.piece->y);
+    // }
+    // if (blah && board->white->king->active) {
+    //   printf("AOK\n");
+    // }
+    // undoMove(board, m);
+  }
+
+  return curScore;
+}
+
+void freeElems(std::vector<movesListElem_t> movesList) {
+  printf("in free elems\n");
+  for (std::vector<movesListElem_t>::reverse_iterator it = movesList.rend(); 
+    it != movesList.rbegin(); it++) {
+    free((*it));
+    break;
+  }
+  printf("freed elems\n");
+}
+
 minimaxResult_t maxi(int curDepth, int maxDepth, int alpha, int beta,
- board_t board, int curPlayer) {
+ board_t board, int curPlayer, std::vector<movesListElem_t> movesList) {
   // ENSURES: board struct remains the same as it was passed in when the function completes
-  std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
-  
+
+  // printf("In maxi depth = %d\n", curDepth);
   if (maxDepth == curDepth || gameOver(board) != -1) {
-    std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
-    int curScore = score(board, curPlayer, int(possibleMoves.size()), int(possibleMovesOther.size()));
+    int curScore = calcScore(board, curPlayer, movesList);
+    // int curScore = 42;
     minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
     res->bestRes = curScore;
     res->move = NULL;
     return res;
   }
+
+  for (std::vector<movesListElem_t>::iterator it = movesList.begin(); it != movesList.end(); it++)
+  {
+    movesListElem_t me = *it;
+    me->startPiece = board->gameBoard[getIndex(me->m->x1, me->m->y1)];
+    me->endPiece = board->gameBoard[getIndex(me->m->x2, me->m->y2)];
+    applyMove(me->m, board, me->player);
+  }
+  std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
+  for (std::vector<movesListElem_t>::reverse_iterator it = movesList.rbegin(); it != movesList.rend(); it++)
+  {
+    movesListElem_t me = *it;
+    move_t m = me->m;
+    int x1 = m->x1;
+    int y1 = m->y1;
+    int x2 = m->x2;
+    int y2 = m->y2;
+    board_piece startPiece = me->startPiece;
+    board_piece endPiece = me->endPiece;
+    undoMove(x1, y1, startPiece, x2, y2, endPiece, board, me->player);
+  }
+  // printf("Made possible moves: Size = %d\n", int(possibleMoves.size()));
+
+  // printf("Got possible moves. Len = %d\n", int(possibleMoves.size()));
   if (curDepth == 0) {
     std::random_shuffle(possibleMoves.begin(), possibleMoves.end());
   }
@@ -490,7 +573,7 @@ minimaxResult_t maxi(int curDepth, int maxDepth, int alpha, int beta,
   move_t bestMove = NULL;
   int resS = NEGINF;
 
-  
+
   for (std::vector<move_t>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); it++) {
 
     move_t curMove = *it;
@@ -502,36 +585,37 @@ minimaxResult_t maxi(int curDepth, int maxDepth, int alpha, int beta,
     board_piece endPiece = board->gameBoard[getIndex(x2, y2)];
 
     // we know curMove is valid
-
-    applyMove(curMove, board, curPlayer);
+    std::vector<movesListElem_t> curMovesList = movesList;  // hoping this is deep copy lmao
+    movesListElem_t mle = (movesListElem_t)malloc(sizeof(struct movesListElem));
+    mle->m = curMove;
+    mle->startPiece = startPiece;
+    mle->endPiece = endPiece;
+    mle->player = curPlayer;
+    curMovesList.push_back(mle);
     // applying move modifies the board
 
     minimaxResult_t curRes = mini(curDepth + 1, maxDepth, alpha, beta, board, 
-      flipPlayer(curPlayer));
+      flipPlayer(curPlayer), curMovesList);
     resS = max(resS, curRes->bestRes);
 
     // now undo this move
-    undoMove(x1, y1, startPiece, x2, y2, endPiece, board, curPlayer);
     if (alpha <= curRes->bestRes && curRes->bestRes <= beta) {
       bestMove = curMove;
     }
     alpha = max(alpha, resS);
-    // calculate new intervals | prune if applicable
 
     if (beta <= alpha) {
-      // ABOVE
-      // assert (newBeta >= beta)
-      // mini can already get beta so would never move us into this state
-      // where we can get higher than beta so prune
       free(curRes);
+      // freeElems(movesList);
       minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
       res->bestRes = alpha;  // TODO: Check value returned here
       res->move = bestMove;
       return res;
     }
-    // last case is BELOW so keep alpha as is
     free(curRes);
   }
+  // printf("returning from maxi\n");
+  // freeElems(movesList);
   minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
   res->bestRes = resS;
   res->move = bestMove;
@@ -539,24 +623,48 @@ minimaxResult_t maxi(int curDepth, int maxDepth, int alpha, int beta,
 }
 
 
+
+
 minimaxResult_t mini(int curDepth, int maxDepth, int alpha, int beta, 
-  board_t board, int curPlayer) {
+  board_t board, int curPlayer, std::vector<movesListElem_t> movesList) {
   // ENSURES: board struct remains the same as it was passed in when the function completes
-  std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
-  
+  // printf("In mini depth = %d\n", curDepth);
 
   if (maxDepth == curDepth || gameOver(board) != -1) {
-    std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
-    int curScore = score(board, curPlayer, int(possibleMoves.size()), int(possibleMovesOther.size()));
+    int curScore = calcScore(board, curPlayer, movesList);
+    // int curScore = 42;
     minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
     res->bestRes = curScore;
     res->move = NULL;
     return res;
   }
 
+  for (std::vector<movesListElem_t>::iterator it = movesList.begin(); it != movesList.end(); it++)
+  {
+    movesListElem_t me = *it;
+    me->startPiece = board->gameBoard[getIndex(me->m->x1, me->m->y1)];
+    me->endPiece = board->gameBoard[getIndex(me->m->x2, me->m->y2)];
+    applyMove(me->m, board, me->player);
+  }
+  std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
+  for (std::vector<movesListElem_t>::reverse_iterator it = movesList.rbegin(); it != movesList.rend(); it++)
+  {
+    movesListElem_t me = *it;
+    move_t m = me->m;
+    int x1 = m->x1;
+    int y1 = m->y1;
+    int x2 = m->x2;
+    int y2 = m->y2;
+    board_piece startPiece = me->startPiece;
+    board_piece endPiece = me->endPiece;
+    undoMove(x1, y1, startPiece, x2, y2, endPiece, board, me->player);
+  }
+
   if (curDepth == 0) {
     std::random_shuffle(possibleMoves.begin(), possibleMoves.end());
   }
+
+  // printf("Mini Got possible moves. Len = %d\n", int(possibleMoves.size()));
 
   move_t bestMove = NULL;
   int resS = POSINF;
@@ -569,18 +677,25 @@ minimaxResult_t mini(int curDepth, int maxDepth, int alpha, int beta,
     int y2 = curMove->y2;
     board_piece endPiece = board->gameBoard[getIndex(x2, y2)];
 
+    std::vector<movesListElem_t> curMovesList = movesList;  // hoping this is deep copy lmao
+    movesListElem_t mle = (movesListElem_t)malloc(sizeof(struct movesListElem));
+    mle->m = curMove;
+    mle->player = curPlayer;
+    mle->startPiece = startPiece;
+    mle->endPiece = endPiece;
+    curMovesList.push_back(mle);
+
     // we know curMove is valid
-    applyMove(curMove, board, curPlayer);
+    // applyMove(curMove, board, curPlayer);
     // applying move modifies the board
 
     minimaxResult_t curRes = maxi(curDepth + 1, maxDepth, alpha, beta,
-     board, flipPlayer(curPlayer));
+     board, flipPlayer(curPlayer), curMovesList);
     resS = min(resS, curRes->bestRes);
 
     // now undo this move
-    undoMove(x1, y1, startPiece, x2, y2, endPiece, board, curPlayer);
+    // undoMove(x1, y1, startPiece, x2, y2, endPiece, board, curPlayer);
 
-    // if (curRes->bestRes <= beta && curRes->bestRes >= alpha) {
     if (curRes->bestRes <= beta) {
       bestMove = curMove;
     }
@@ -592,6 +707,7 @@ minimaxResult_t mini(int curDepth, int maxDepth, int alpha, int beta,
       // maxi can already get alpha so no way it would get mini in a position to get a newAlpha
       // less than current alpha so prune
       free(curRes);
+      // freeElems(movesList);
       minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
       res->bestRes = beta;  // TODO: Check value returned here
       res->move = bestMove;
@@ -599,6 +715,8 @@ minimaxResult_t mini(int curDepth, int maxDepth, int alpha, int beta,
     }
     free(curRes);
   }
+  // printf("returning from mini\n");
+  // freeElems(movesList);
   minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
   res->bestRes = resS;
   res->move = bestMove;
@@ -608,11 +726,13 @@ minimaxResult_t mini(int curDepth, int maxDepth, int alpha, int beta,
 move_t nextMove(board_t board, int aiType, int curPlayer) {
   std::srand ( unsigned ( std::time(0) ) );
   // AI is called to help les goooooo!!!
+  printf("In next move\n");
   minimaxResult_t res;
+  std::vector<movesListElem_t> movesList;
   if (aiType == MAXI) {
-    res = maxi(0, MAXDEPTH, NEGINF, POSINF, board, curPlayer);
+    res = maxi(0, MAXDEPTH, NEGINF, POSINF, board, curPlayer, movesList);
   } else {
-    res = mini(0, MAXDEPTH, NEGINF, POSINF, board, curPlayer);
+    res = mini(0, MAXDEPTH, NEGINF, POSINF, board, curPlayer, movesList);
   }
   move_t move = res->move;
   free(res);
