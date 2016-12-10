@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <cstring>
 #include "chess.h"
+#include "lib/CycleTimer.h"
 #include "alphabeta.h"
 
 using std::string;
@@ -263,7 +264,7 @@ void removeTakenPiece(player_t p, int startIndex, int endIndex, board_piece_t ga
 }
 
 void movePiece(board_piece_t gameBoard, int startIndex, int endIndex, int curPlayer) {
-  // gameBoard[endIndex].piece = gameBoard[startIndex].piece;
+  // gameBoard[endIndex].piece->type = gameBoard[startIndex].piece->type;
   // gameBoard[endIndex].player = curPlayer;
   gameBoard[endIndex] = gameBoard[startIndex];
   gameBoard[startIndex].piece = NULL;
@@ -854,6 +855,7 @@ int main() {
   initGame(B);
   char move[10];
   int numMoves = 0;
+
   while(1) {
     numMoves++;
     move_t m;
@@ -895,10 +897,13 @@ int main() {
     } else {
       // AI LES GOOO
       AI = 1;
+      double startTime, endTime;
+      startTime = CycleTimer::currentSeconds();
       m = nextMove(B, MAXI, WHITE);
+      endTime = CycleTimer::currentSeconds();
       int t = B->gameBoard[getIndex(m->x1, m->y1)].piece->type;
-      printf("AI (W) decided move col1 = %d row1 = %d: col2 = %d row2 = %d t = %d\n",
-          m->x1, m->y1, m->x2, m->y2, t);
+      printf("AI (W) decided move col1 = %d row1 = %d: col2 = %d row2 = %d t = %d in time = %.3f (ms)\n",
+          m->x1, m->y1, m->x2, m->y2, t, (endTime - startTime) * 1000.f);
     }
 
     // printf("Applying move...\n");

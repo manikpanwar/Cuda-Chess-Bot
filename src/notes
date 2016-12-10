@@ -1,0 +1,21 @@
+wrote chess.cpp and complete chess engine
+made sure to keep separate functions for applyMove, undoMove and isLegalMove
+wrote alpha beta sequential and got that running
+
+— initial alpha beta used the same game state for the sequential version
+  - to get to parallel would have to create a separate game state for each thread since the size of the tree increased exponentially.
+    or would have to lock the game state for every maxi/mini call which would not only add lock time and lock contention but also would lead us to essentially a sequential algorithm
+  - so we decided to use change lists and not changing the board state until we reached a  leaf node or game over state.
+    only then would we acquire a lock on game state/apply all changes from our moves list/ score final state/ undo changes/release lock.
+    this helped us reduce locking by a lot and also eliminated need to create separate game states each time
+
+
+saw a tradeoff with taking out mobility from scoring (that gave us a 4x speedup for the first move but tradeoff was ai quality would go down as scoring heuristic is worse)
+
+BUGFIXES OMG
+
+wrote down alpha beta in parallel using posix threads
+initially just ran a separate thread for each of the first possible moves (so ~20 ish threads which explored game trees for a single possible moves at the first level)
+this gave us slower times than regular alpha beta because of thread creation overhead and general stuff
+to improve could go one level deeper and run more threads there for the bigger set of possible moves
+Instead we decided to implement PVSplitting with jamboree

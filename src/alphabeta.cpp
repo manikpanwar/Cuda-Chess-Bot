@@ -490,9 +490,10 @@ int calcScore(board_t board, int curPlayer, std::vector<movesListElem_t> movesLi
     //   printf("after this one\n");
     // }
   }
-  std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
-  std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
-  int curScore = score(board, curPlayer, int(possibleMoves.size()), int(possibleMovesOther.size()));
+  // std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
+  // std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
+  // int curScore = score(board, curPlayer, int(possibleMoves.size()), int(possibleMovesOther.size()));
+  int curScore = score(board, curPlayer, 0, 0);
   for (std::vector<movesListElem_t>::reverse_iterator it = movesList.rbegin(); it != movesList.rend(); it++)
   {
     movesListElem_t me = *it;
