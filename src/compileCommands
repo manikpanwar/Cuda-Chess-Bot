@@ -1,2 +1,0 @@
-g++ -o minimaxPthreadChess chess.cpp minimaxPthreads.cpp -lpthread
-g++ -o pthreadChess chess.cpp pvsplitPthreads.cpp -lpthread

@@ -170,7 +170,6 @@ void initPlayers(board_t B) {
 
   b->pawns = (pos_t)malloc(BOARD_WIDTH * sizeof(struct pos));
   for(int i = 0; i < BOARD_WIDTH; i++) {
-    //b->pawns[i] = (pos_t)malloc(sizeof(struct pos));
     b->pawns[i].x = i;
     b->pawns[i].y = 6;
     b->pawns[i].active = true;
@@ -192,7 +191,6 @@ void initGame(board_t B) {
 // checks if the format of the move is valid
 bool isValidMoveFormat(char move[]) {
   printf(move);
-  //string move(m);
   if (std::strlen(move) != 6) {
     printf("length = %d", std::strlen(move));
     return false;
@@ -260,15 +258,11 @@ void removeTakenPiece(player_t p, int startIndex, int endIndex, board_piece_t ga
     case KING: {p->king->active = false;
                    break;}
   }
-  // gameBoard[endIndex].piece->type = gameBoard[startIndex].piece->type;
-  // gameBoard[endIndex].player = curPlayer;
   gameBoard[endIndex] = gameBoard[startIndex];
   gameBoard[startIndex].piece = NULL;
 }
 
 void movePiece(board_piece_t gameBoard, int startIndex, int endIndex, int curPlayer) {
-  // gameBoard[endIndex].piece->type = gameBoard[startIndex].piece->type;
-  // gameBoard[endIndex].player = curPlayer;
   gameBoard[endIndex] = gameBoard[startIndex];
   gameBoard[startIndex].piece = NULL;
 }
@@ -437,17 +431,6 @@ bool isLegalMove(move_t move, board_t B, int curPlayer) {
 
     else return true;
 
-    // // if you move the pawn diagonally and there is an enemy piece there
-    // else if (rowDiff == -1 && abs(colDiff) == 1) {
-    //   removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
-    //   return true;
-    // }
-
-    // // if you move the pawn into an open space
-    // else {
-    //   movePiece(gameBoard, startIndex, endIndex, curPlayer);
-    //   return true;
-    // }
   }
   // check valid move for BLACK pawns
   else if (gameBoard[startIndex].piece->type == PAWN && curPlayer == BLACK) {
@@ -490,18 +473,7 @@ bool isLegalMove(move_t move, board_t B, int curPlayer) {
 
     else return true;
 
-    // // if you move the pawn diagonally and there is an enemy piece there
-    // else if (rowDiff == 1 && abs(colDiff) == 1) {
-    //   removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
-    //   return true;
-    // }
-
-    // // if you move the pawn into an open space
-    // else {
-    //   movePiece(gameBoard, startIndex, endIndex, curPlayer);
-    //   return true;
-    // }
-  }
+   }
 
   else if (gameBoard[startIndex].piece->type == KING) {
     // kings can only move one space
@@ -511,20 +483,6 @@ bool isLegalMove(move_t move, board_t B, int curPlayer) {
     }
 
     else return true;
-    // else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
-    //   if (curPlayer == WHITE) {
-    //     removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
-    //     return true;
-    //   }
-    //   else {
-    //     removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
-    //     return true;
-    //   }
-    // }
-    // else {
-    //   movePiece(gameBoard, startIndex, endIndex, curPlayer);
-    //   return true;
-    // }
   }
 
   else if (gameBoard[startIndex].piece->type == QUEEN) {
@@ -615,20 +573,7 @@ bool isLegalMove(move_t move, board_t B, int curPlayer) {
     }
 
     else return true;
-    // else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
-    //   if (curPlayer == WHITE) {
-    //     removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
-    //     return true;
-    //   }
-    //   else {
-    //     removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
-    //     return true;
-    //   }
-    // }
-    // else {
-    //   movePiece(gameBoard, startIndex, endIndex, curPlayer);
-    //   return true;
-    // }
+
   }
 
   else if (gameBoard[startIndex].piece->type == KNIGHT) {
@@ -638,20 +583,7 @@ bool isLegalMove(move_t move, board_t B, int curPlayer) {
     }
 
     else return true;
-    // else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
-    //   if (curPlayer == WHITE) {
-    //     removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
-    //     return true;
-    //   }
-    //   else {
-    //     removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
-    //     return true;
-    //   }
-    // }
-    // else {
-    //   movePiece(gameBoard, startIndex, endIndex, curPlayer);
-    //   return true;
-    // }
+
   }
 
   else if (gameBoard[startIndex].piece->type == BISHOP) {
@@ -706,20 +638,7 @@ bool isLegalMove(move_t move, board_t B, int curPlayer) {
     }
 
     else return true;
-    // else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
-    //   if (curPlayer == WHITE) {
-    //     removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
-    //     return true;
-    //   }
-    //   else {
-    //     removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
-    //     return true;
-    //   }
-    // }
-    // else {
-    //   movePiece(gameBoard, startIndex, endIndex, curPlayer);
-    //   return true;
-    // }
+
   }
 
   else if (gameBoard[startIndex].piece->type == ROOK) {
@@ -766,20 +685,6 @@ bool isLegalMove(move_t move, board_t B, int curPlayer) {
     }
 
     else return true;
-    // else if (gameBoard[endIndex].piece != NULL && gameBoard[endIndex].player != curPlayer) {
-    //   if (curPlayer == WHITE) {
-    //     removeTakenPiece(B->black, startIndex, endIndex, gameBoard, curPlayer);
-    //     return true;
-    //   }
-    //   else {
-    //     removeTakenPiece(B->white, startIndex, endIndex, gameBoard, curPlayer);
-    //     return true;
-    //   }
-    // }
-    // else {
-    //   movePiece(gameBoard, startIndex, endIndex, curPlayer);
-    //   return true;
-    // }
   }
 
   else return false;
@@ -852,8 +757,6 @@ int gameOver(board_t B) {
 
 int main() {
   board_t B = (board_t)malloc(sizeof(struct board));
-  // B->gameBoard = calloc(BOARD_WIDTH * BOARD_HEIGHT, sizeof(struct board_piece_t));
-  // TODO: confirm allocation should be board_piece instead of board_piece_t
   B->gameBoard = (board_piece_t)calloc(BOARD_WIDTH * BOARD_HEIGHT, sizeof(struct board_piece));
   initGame(B);
   char move[10];
@@ -866,12 +769,6 @@ int main() {
     numMoves++;
     move_t m;
     if (B->curPlayer == BLACK) {
-      // AI = 1;
-      // m = nextMove(B, MAXI, BLACK);
-      // int t = B->gameBoard[getIndex(m->x1, m->y1)].piece->type;
-      // printf("AI (B) decided move col1 = %d row1 = %d: col2 = %d row2 = %d type = %d\n",
-      //     m->x1, m->y1, m->x2, m->y2, t);
-      
       AI = 0;
       move[0] = '\0';
       std::cout << "Please enter a move: ";
@@ -903,30 +800,17 @@ int main() {
     } else {
       // AI LES GOOO
       AI = 1;
-      int tries = 20;
       double min = 20000000.f;
-      while (tries) {
-        double startTime, endTime;
-        startTime = CycleTimer::currentSeconds();
-        m = nextMove(B, MAXI, WHITE);
-        endTime = CycleTimer::currentSeconds();
-        printf("AI (W) decided move in time = %.3f (ms)\n",
-          (endTime - startTime) * 1000.f);
-        // int t = B->gameBoard[getIndex(m->x1, m->y1)].piece->type;
-        if ((endTime - startTime) * 1000.f < min) {
-          min = (endTime - startTime) * 1000.f;
-        }
-        tries--;
-      }
-      if (!m) printf("WHAT THE ACTUAL FUCK\n");
+      double startTime, endTime;
+      startTime = CycleTimer::currentSeconds();
+      m = nextMove(B, MAXI, WHITE);
+      endTime = CycleTimer::currentSeconds();
+      min = (endTime - startTime) * 1000.f;
       printf("AI (W) decided move col1 = %d row1 = %d: col2 = %d row2 = %d in min time = %.3f (ms)\n",
           m->x1, m->y1, m->x2, m->y2, min);
     }
 
-    // printf("Applying move...\n");
-    
     applyMove(m, B, B->curPlayer);
-    // printf("Applied move\n");
     // check game over
     if (gameOver(B) == WHITE) {
       B->gameOver = true;

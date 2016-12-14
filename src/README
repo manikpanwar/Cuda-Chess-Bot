@@ -1,0 +1,14 @@
+
+The following are the compiling commands for the various iterations of the code. Our final iteration is #1 which is pvsplitOpenMpChess:
+
+1. g++ -o pvsplitOpenMpChess chess.cpp pvsplitOpenMp.cpp -fopenmp -O3 -m64
+2. g++ -o alphabetaChess chess.cpp alphabeta.cpp -O3 -m64
+3. g++ -o minimaxPthreadChess chess.cpp minimaxPthreads.cpp -lpthread
+4. g++ -o pthreadChess chess.cpp pvsplitPthreads.cpp -lpthread
+
+
+To change AI depth, modify MAXDEPTH in alphabeta.h | default : 7
+
+To change openMP number of threads, modify NUMOFTHREADS in chess.h | default : 16
+
+If you want to run any of the 2, 3 or 4 compile commands (comment out #define OMP from chess.h)

@@ -17,20 +17,12 @@ typedef struct threadStruct* threadStruct_t;
 struct threadStruct {
   int curDepth;
   int maxDepth;
-  int alpha; 
+  int alpha;
   int beta;
   board_t board;
-  int curPlayer; 
+  int curPlayer;
   minimaxResult_t res;
 };
-
-
-minimaxResult_t mini(int curDepth, int maxDepth,
-                    int alpha, int beta, board_t board, int curPlayer);
-
-minimaxResult_t maxi(int curDepth, int maxDepth,
-                    int alpha, int beta, board_t board, int curPlayer);
-
 
 void generatePossibleMovesKing(board_t board, int x, int y,
     std::vector<move_t>* possibleMoves, int curPlayer) {
@@ -427,17 +419,8 @@ int score(board_t board, int curPlayer, int mobility, int mobilityOther) {
   player_t white = board->white;
   player_t black = board->black;
 
-  // if (curPlayer == BLACK) {
-  //   player_t temp = white;
-  //   white = black;
-  //   black = temp;
-  // }
-
-  // NOW WHITE POINTS TO CURPLAYER
-
   // king
   int wka = white->king->active ? 1 : 0;
-  // if (!wka) printf("So the king is not active...");
   int bka = black->king->active ? 1 : 0;
   int result = 2000 * (wka - bka);
 
@@ -470,7 +453,6 @@ int score(board_t board, int curPlayer, int mobility, int mobilityOther) {
   result += 1 * (wpawns - bpawns);
 
   result += .1 * (mobility - mobilityOther);
-  // if (!wka) printf("and the score is %d\n", result);
 
   return result;
 }
@@ -531,7 +513,6 @@ board_t deepCopyBoard (board_t B) {
   ret->gameBoard = (board_piece_t)calloc(BOARD_WIDTH * BOARD_HEIGHT, sizeof(struct board_piece));
   for (int i = 0; i < BOARD_WIDTH; i++) {
     for (int j = 0; j < BOARD_HEIGHT; j++) {
-      //printf("aewfadsfadsfasdf\n");
       int index = getIndex(i, j);
       ret->gameBoard[index].piece = (pos_t)malloc(sizeof(struct pos));
       if (B->gameBoard[index].piece) {
@@ -595,11 +576,9 @@ minimaxResult_t alphabetaSearch(int curDepth, int maxDepth, int alpha, int beta,
  board_t board, int curPlayer) {
 
   // ENSURES: board struct remains the same as it was passed in when the function completes
-  // printf("In maxi depth = %d\n", curDepth);
   double st, et;
   st = CycleTimer::currentSeconds();
   if (curDepth == maxDepth|| gameOver(board) != -1) {
-    // std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
     int curScore = score(board, curPlayer, 0, 0);
     minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
     res->bestRes = curScore;
@@ -614,7 +593,7 @@ minimaxResult_t alphabetaSearch(int curDepth, int maxDepth, int alpha, int beta,
 
   move_t bestMove = NULL;
 
-  
+
   for (std::vector<move_t>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); it++) {
 
     move_t curMove = *it;
@@ -630,9 +609,7 @@ minimaxResult_t alphabetaSearch(int curDepth, int maxDepth, int alpha, int beta,
     applyMove(curMove, board, curPlayer);
     // applying move modifies the board
 
-    // minimaxResult_t curRes = mini(curDepth + 1, maxDepth, alpha, beta, board, 
-    //   flipPlayer(curPlayer));
-    minimaxResult_t curRes = alphabetaSearch(curDepth + 1, maxDepth, -beta, -alpha, board, 
+    minimaxResult_t curRes = alphabetaSearch(curDepth + 1, maxDepth, -beta, -alpha, board,
       flipPlayer(curPlayer));
     int resS = -(curRes->bestRes);
 
@@ -644,7 +621,6 @@ minimaxResult_t alphabetaSearch(int curDepth, int maxDepth, int alpha, int beta,
       minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
       res->bestRes = beta;  // returning alpha bc thats the max value (maxing in maxi and - in upper level is equiv to min'ing in mini)
       res->move = bestMove;
-      // if (!res->move && curDepth == 1) printf("CurDepth = %d alpha = %d beta = %d\n", curDepth, alpha, beta);
       return res;
     }
     if (alpha < resS) {
@@ -658,25 +634,22 @@ minimaxResult_t alphabetaSearch(int curDepth, int maxDepth, int alpha, int beta,
   res->move = bestMove;
   et = CycleTimer::currentSeconds();
   // if (!curDepth)
-  //   printf("Thread took time %.3f (ms) with curDepth = %d\n", 
+  //   printf("Thread took time %.3f (ms) with curDepth = %d\n",
   //     (et - st) * 1000.f, curDepth);
   return res;
 }
 
 
-minimaxResult_t PVSplit(int curDepth, int maxDepth, int alpha, int beta, 
+minimaxResult_t PVSplit(int curDepth, int maxDepth, int alpha, int beta,
   board_t board, int curPlayer) {
 
-
-  // printf("In PVSplit depth = %d\n", curDepth);
   if (maxDepth == curDepth || gameOver(board) != -1) {
-    // std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
     int curScore = score(board, curPlayer, 0, 0);
     minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
     res->bestRes = curScore;
     res->move = NULL;
     return res;
-  }  
+  }
 
   std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
 
@@ -720,21 +693,16 @@ minimaxResult_t PVSplit(int curDepth, int maxDepth, int alpha, int beta,
   pthread_t threads[int(possibleMoves.size()) - 1];
 
   int threadStatus;
-  // printf("Ran on the first one\n");
   if (int(possibleMoves.size()) > 1)  {
     volatile bool flag = false;
     int i;
-    #pragma omp parallel for default(shared) shared(flag, alpha, bestMove) private(i) schedule(dynamic) 
+    #pragma omp parallel for default(shared) shared(flag, alpha, bestMove) private(i) schedule(dynamic)
     for (i = 1; i < possibleMoves.size(); i++) {
-      // if (beta != POSINF) printf("beta = %d\n", beta);
-      // printf("Depth = %d\n", curDepth);
+
       if (flag) {
-        // if (curDepth == 0)
-        //   printf("Pruning bitches\n");
         continue;
-      } 
+      }
       else {
-        // printf("Ran on this one too\n");
         move_t curMove = possibleMoves.at(i);
         int x1 = curMove->x1;
         int y1 = curMove->y1;
@@ -751,172 +719,24 @@ minimaxResult_t PVSplit(int curDepth, int maxDepth, int alpha, int beta,
         int iresS = curRes->bestRes;
         deepFreeBoard(boardCopy);
 
-        // if (!curDepth && curRes->move) {
-        //   printf("We made it\n");
-        // }
+
         if (iresS > beta) {
           free(curRes);
           minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
           res->bestRes = beta;
           res->move = bestMove;
-          // printf("Setting flag\n");
           flag = true;
         }
-        #pragma omp critical 
+        #pragma omp critical
           if (alpha < iresS) {
             bestMove = curMove;
             alpha = iresS;
           }
         }
-    } 
+    }
   }
   minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
   res->bestRes = alpha;
-  res->move = bestMove;
-  // printf("Returning PVSplit depth = %d\n", curDepth);
-  return res;
-}
-
-minimaxResult_t maxi(int curDepth, int maxDepth, int alpha, int beta,
- board_t board, int curPlayer) {
-
-  // ENSURES: board struct remains the same as it was passed in when the function completes
-  // printf("In maxi depth = %d\n", curDepth);
-  double st, et;
-  st = CycleTimer::currentSeconds();
-  if (maxDepth == curDepth || gameOver(board) != -1) {
-    // std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
-    int curScore = score(board, curPlayer, 0, 0);
-    minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
-    res->bestRes = curScore;
-    res->move = NULL;
-    return res;
-  }
-
-  std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
-  if (curDepth == 0) {
-    std::random_shuffle(possibleMoves.begin(), possibleMoves.end());
-  }
-
-  move_t bestMove = NULL;
-  int resS = NEGINF;
-
-  
-  for (std::vector<move_t>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); it++) {
-
-    move_t curMove = *it;
-    int x1 = curMove->x1;
-    int y1 = curMove->y1;
-    board_piece startPiece = board->gameBoard[getIndex(x1, y1)];
-    int x2 = curMove->x2;
-    int y2 = curMove->y2;
-    board_piece endPiece = board->gameBoard[getIndex(x2, y2)];
-
-    // we know curMove is valid
-
-    applyMove(curMove, board, curPlayer);
-    // applying move modifies the board
-
-    minimaxResult_t curRes = mini(curDepth + 1, maxDepth, alpha, beta, board, 
-      flipPlayer(curPlayer));
-    resS = max(resS, curRes->bestRes);
-
-    // now undo this move
-    undoMove(x1, y1, startPiece, x2, y2, endPiece, board, curPlayer);
-    if (alpha <= curRes->bestRes && curRes->bestRes <= beta) {
-      bestMove = curMove;
-    }
-    alpha = max(alpha, resS);
-    // calculate new intervals | prune if applicable
-
-    if (beta <= alpha) {
-      // ABOVE
-      // assert (newBeta >= beta)
-      // mini can already get beta so would never move us into this state
-      // where we can get higher than beta so prune
-      free(curRes);
-      minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
-      res->bestRes = alpha;  // TODO: Check value returned here
-      res->move = bestMove;
-      return res;
-    }
-    // last case is BELOW so keep alpha as is
-    free(curRes);
-  }
-  minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
-  res->bestRes = resS;
-  res->move = bestMove;
-  et = CycleTimer::currentSeconds();
-  if (!curDepth)
-    // printf("Thread took time %.3f (ms) with curDepth = %d\n", 
-      // (et - st) * 1000.f, curDepth);
-  return res;
-}
-
-
-minimaxResult_t mini(int curDepth, int maxDepth, int alpha, int beta, 
-  board_t board, int curPlayer) {
-  // ENSURES: board struct remains the same as it was passed in when the function completes
-  // printf("In mini depth = %d\n", curDepth);
-  
-
-  if (maxDepth == curDepth || gameOver(board) != -1) {
-    // std::vector<move_t> possibleMovesOther = generatePossibleMoves(board, flipPlayer(curPlayer));
-    int curScore = score(board, curPlayer, 0, 0);
-    minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
-    res->bestRes = curScore;
-    res->move = NULL;
-    return res;
-  }
-  std::vector<move_t> possibleMoves = generatePossibleMoves(board, curPlayer);
-
-  if (curDepth == 0) {
-    std::random_shuffle(possibleMoves.begin(), possibleMoves.end());
-  }
-
-  move_t bestMove = NULL;
-  int resS = POSINF;
-  for (std::vector<move_t>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); it++) {
-    move_t curMove = *it;
-    int x1 = curMove->x1;
-    int y1 = curMove->y1;
-    board_piece startPiece = board->gameBoard[getIndex(x1, y1)];
-    int x2 = curMove->x2;
-    int y2 = curMove->y2;
-    board_piece endPiece = board->gameBoard[getIndex(x2, y2)];
-
-    // we know curMove is valid
-    applyMove(curMove, board, curPlayer);
-    // applying move modifies the board
-
-    minimaxResult_t curRes = maxi(curDepth + 1, maxDepth, alpha, beta,
-     board, flipPlayer(curPlayer));
-    resS = min(resS, curRes->bestRes);
-
-    // now undo this move
-    undoMove(x1, y1, startPiece, x2, y2, endPiece, board, curPlayer);
-
-    // if (curRes->bestRes <= beta && curRes->bestRes >= alpha) {
-    if (curRes->bestRes <= beta) {
-      bestMove = curMove;
-    }
-    beta = min(resS, beta);
-    // calculate new intervals | prune if applicable
-
-    if (beta <= alpha) {
-      // BELOW
-      // maxi can already get alpha so no way it would get mini in a position to get a newAlpha
-      // less than current alpha so prune
-      free(curRes);
-      minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
-      res->bestRes = beta;  // TODO: Check value returned here
-      res->move = bestMove;
-      return res;
-    }
-    free(curRes);
-  }
-  minimaxResult_t res = (minimaxResult_t)malloc(sizeof(struct minimaxResult));
-  res->bestRes = resS;
   res->move = bestMove;
   return res;
 }
@@ -925,13 +745,7 @@ move_t nextMove(board_t board, int aiType, int curPlayer) {
   std::srand ( unsigned ( std::time(0) ) );
   // AI is called to help les goooooo!!!
   minimaxResult_t res;
-  if (aiType == MAXI) {
-    // printf("In next move\n");
-    res = PVSplit(0, MAXDEPTH, NEGINF, POSINF, board, curPlayer);
-    // printf("Returning from next move\n");
-  } else {
-    res = mini(0, MAXDEPTH, NEGINF, POSINF, board, curPlayer);
-  }
+  res = PVSplit(0, MAXDEPTH, NEGINF, POSINF, board, curPlayer);
   move_t move = res->move;
   free(res);
   return move;

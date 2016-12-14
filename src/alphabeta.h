@@ -1,10 +1,10 @@
 #ifndef ALPHABETA_H
 #define ALPHABETA_H
 
-#define POSINF INT_MAX     // may need to include <limits.h>
-#define NEGINF INT_MIN
+#define POSINF INT_MAX-1     // may need to include <limits.h>
+#define NEGINF INT_MIN+1
 
-#define MAXDEPTH 8
+#define MAXDEPTH 7
 
 #define MAXI 1
 #define MINI 2
